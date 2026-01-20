@@ -51,7 +51,7 @@ const paymentSchema = new mongoose.Schema({
     type: String
   },
   gatewayResponse: {
-    type: mongoose.Schema.Mixed
+    type: mongoose.Schema.Types.Mixed
   },
   status: {
     type: String,
