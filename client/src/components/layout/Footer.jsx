@@ -5,35 +5,40 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-slate-800 text-white pt-12 pb-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 text-white pt-12 pb-6 relative overflow-hidden">
+      {/* Decorative gradient overlays */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+      <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           
           {/* Company Info */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 rounded-lg flex items-center justify-center shadow-lg">
                 <span className="text-white font-bold text-lg">N</span>
               </div>
               <div>
-                <h3 className="font-bold text-lg">Nexarion</h3>
-                <p className="text-xs text-emerald-400">Global Exports</p>
+                <h3 className="font-bold text-lg bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Nexarion</h3>
+                <p className="text-xs text-emerald-400 font-semibold">Global Exports</p>
               </div>
             </div>
-            <p className="text-slate-300 text-sm mb-4">
+            <p className="text-slate-300 text-sm mb-4 leading-relaxed">
               Your trusted partner in global import-export solutions. Connecting businesses worldwide.
             </p>
             <div className="flex gap-3">
-              <a href="#" className="w-9 h-9 bg-slate-700 rounded-lg flex items-center justify-center hover:bg-emerald-500 transition-colors">
+              <a href="#" className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:scale-110">
                 <Facebook size={18} />
               </a>
-              <a href="#" className="w-9 h-9 bg-slate-700 rounded-lg flex items-center justify-center hover:bg-emerald-500 transition-colors">
+              <a href="#" className="w-9 h-9 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-lg flex items-center justify-center hover:from-cyan-600 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:scale-110">
                 <Twitter size={18} />
               </a>
-              <a href="#" className="w-9 h-9 bg-slate-700 rounded-lg flex items-center justify-center hover:bg-emerald-500 transition-colors">
+              <a href="#" className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center hover:from-indigo-600 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:scale-110">
                 <Linkedin size={18} />
               </a>
-              <a href="#" className="w-9 h-9 bg-slate-700 rounded-lg flex items-center justify-center hover:bg-emerald-500 transition-colors">
+              <a href="#" className="w-9 h-9 bg-gradient-to-br from-pink-500 to-rose-600 rounded-lg flex items-center justify-center hover:from-pink-600 hover:to-rose-700 transition-all duration-300 shadow-lg hover:scale-110">
                 <Instagram size={18} />
               </a>
             </div>
@@ -41,42 +46,51 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-bold text-lg mb-4">Quick Links</h4>
+            <h4 className="font-bold text-lg mb-4 flex items-center gap-2">
+              <span className="w-1 h-6 bg-gradient-to-b from-emerald-400 to-teal-500 rounded-full"></span>
+              Quick Links
+            </h4>
             <ul className="space-y-2">
-              <li><Link to="/" className="text-slate-300 hover:text-emerald-400 transition-colors text-sm">Home</Link></li>
-              <li><Link to="/products" className="text-slate-300 hover:text-emerald-400 transition-colors text-sm">Products</Link></li>
-              <li><Link to="/categories" className="text-slate-300 hover:text-emerald-400 transition-colors text-sm">Categories</Link></li>
-              <li><Link to="/about" className="text-slate-300 hover:text-emerald-400 transition-colors text-sm">About Us</Link></li>
-              <li><Link to="/contact" className="text-slate-300 hover:text-emerald-400 transition-colors text-sm">Contact</Link></li>
+              <li><Link to="/" className="text-slate-300 hover:text-emerald-400 transition-all duration-300 text-sm flex items-center gap-2 group"><span className="w-0 h-0.5 bg-emerald-400 group-hover:w-4 transition-all duration-300"></span>Home</Link></li>
+              <li><Link to="/products" className="text-slate-300 hover:text-cyan-400 transition-all duration-300 text-sm flex items-center gap-2 group"><span className="w-0 h-0.5 bg-cyan-400 group-hover:w-4 transition-all duration-300"></span>Products</Link></li>
+              <li><Link to="/categories" className="text-slate-300 hover:text-purple-400 transition-all duration-300 text-sm flex items-center gap-2 group"><span className="w-0 h-0.5 bg-purple-400 group-hover:w-4 transition-all duration-300"></span>Categories</Link></li>
+              <li><Link to="/about" className="text-slate-300 hover:text-amber-400 transition-all duration-300 text-sm flex items-center gap-2 group"><span className="w-0 h-0.5 bg-amber-400 group-hover:w-4 transition-all duration-300"></span>About Us</Link></li>
+              <li><Link to="/contact" className="text-slate-300 hover:text-pink-400 transition-all duration-300 text-sm flex items-center gap-2 group"><span className="w-0 h-0.5 bg-pink-400 group-hover:w-4 transition-all duration-300"></span>Contact</Link></li>
             </ul>
           </div>
 
           {/* Services */}
           <div>
-            <h4 className="font-bold text-lg mb-4">Services</h4>
+            <h4 className="font-bold text-lg mb-4 flex items-center gap-2">
+              <span className="w-1 h-6 bg-gradient-to-b from-amber-400 to-orange-500 rounded-full"></span>
+              Services
+            </h4>
             <ul className="space-y-2">
-              <li><Link to="/services" className="text-slate-300 hover:text-emerald-400 transition-colors text-sm">Import Solutions</Link></li>
-              <li><Link to="/services" className="text-slate-300 hover:text-emerald-400 transition-colors text-sm">Export Solutions</Link></li>
-              <li><Link to="/services" className="text-slate-300 hover:text-emerald-400 transition-colors text-sm">Logistics</Link></li>
-              <li><Link to="/services" className="text-slate-300 hover:text-emerald-400 transition-colors text-sm">Customs Clearance</Link></li>
-              <li><Link to="/services" className="text-slate-300 hover:text-emerald-400 transition-colors text-sm">Documentation</Link></li>
+              <li><Link to="/services" className="text-slate-300 hover:text-emerald-400 transition-all duration-300 text-sm flex items-center gap-2 group"><span className="w-0 h-0.5 bg-emerald-400 group-hover:w-4 transition-all duration-300"></span>Import Solutions</Link></li>
+              <li><Link to="/services" className="text-slate-300 hover:text-cyan-400 transition-all duration-300 text-sm flex items-center gap-2 group"><span className="w-0 h-0.5 bg-cyan-400 group-hover:w-4 transition-all duration-300"></span>Export Solutions</Link></li>
+              <li><Link to="/services" className="text-slate-300 hover:text-purple-400 transition-all duration-300 text-sm flex items-center gap-2 group"><span className="w-0 h-0.5 bg-purple-400 group-hover:w-4 transition-all duration-300"></span>Logistics</Link></li>
+              <li><Link to="/services" className="text-slate-300 hover:text-amber-400 transition-all duration-300 text-sm flex items-center gap-2 group"><span className="w-0 h-0.5 bg-amber-400 group-hover:w-4 transition-all duration-300"></span>Customs Clearance</Link></li>
+              <li><Link to="/services" className="text-slate-300 hover:text-pink-400 transition-all duration-300 text-sm flex items-center gap-2 group"><span className="w-0 h-0.5 bg-pink-400 group-hover:w-4 transition-all duration-300"></span>Documentation</Link></li>
             </ul>
           </div>
 
           {/* Contact Info */}
           <div>
-            <h4 className="font-bold text-lg mb-4">Contact Us</h4>
+            <h4 className="font-bold text-lg mb-4 flex items-center gap-2">
+              <span className="w-1 h-6 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-full"></span>
+              Contact Us
+            </h4>
             <ul className="space-y-3">
-              <li className="flex items-start gap-2 text-slate-300 text-sm">
-                <MapPin size={18} className="text-emerald-400 flex-shrink-0 mt-0.5" />
+              <li className="flex items-start gap-2 text-slate-300 text-sm group hover:text-white transition-colors duration-300">
+                <MapPin size={18} className="text-emerald-400 group-hover:text-emerald-300 flex-shrink-0 mt-0.5 transition-colors duration-300" />
                 <span>123 Business Avenue, Trade City, TC 12345</span>
               </li>
-              <li className="flex items-center gap-2 text-slate-300 text-sm">
-                <Phone size={18} className="text-emerald-400" />
+              <li className="flex items-center gap-2 text-slate-300 text-sm group hover:text-white transition-colors duration-300">
+                <Phone size={18} className="text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300" />
                 <span>+1 (555) 123-4567</span>
               </li>
-              <li className="flex items-center gap-2 text-slate-300 text-sm">
-                <Mail size={18} className="text-emerald-400" />
+              <li className="flex items-center gap-2 text-slate-300 text-sm group hover:text-white transition-colors duration-300">
+                <Mail size={18} className="text-purple-400 group-hover:text-purple-300 transition-colors duration-300" />
                 <span>info@nexarion.com</span>
               </li>
             </ul>
@@ -84,16 +98,16 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-slate-700 pt-6 mt-8">
+        <div className="border-t border-gradient-to-r from-emerald-500/20 via-cyan-500/20 to-purple-500/20 pt-6 mt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-slate-400 text-sm">
               © {currentYear} Nexarion Global Exports. All rights reserved.
             </p>
             <div className="flex gap-6">
-              <Link to="/privacy" className="text-slate-400 hover:text-emerald-400 transition-colors text-sm">
+              <Link to="/privacy" className="text-slate-400 hover:text-emerald-400 transition-all duration-300 text-sm hover:scale-105">
                 Privacy Policy
               </Link>
-              <Link to="/terms" className="text-slate-400 hover:text-emerald-400 transition-colors text-sm">
+              <Link to="/terms" className="text-slate-400 hover:text-cyan-400 transition-all duration-300 text-sm hover:scale-105">
                 Terms of Service
               </Link>
             </div>
