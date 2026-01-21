@@ -441,15 +441,15 @@ const HomePage = () => {
           </p>
           <div className="flex flex-wrap justify-center gap-4 mb-8">
             <Link
-              to="/register"
+              to="/signup"
               className="bg-white text-slate-900 px-10 py-4 rounded-xl font-black text-base hover:bg-amber-400 hover:text-white transition-all duration-300 shadow-2xl transform hover:scale-105 hover:shadow-amber-400/50 inline-flex items-center gap-2"
             >
               <Rocket size={20} />
-              Get Started Free
+              Get Started
             </Link>
             <Link
               to="/contact"
-              className="bg-transparent border-2 border-white text-white px-10 py-4 rounded-xl font-bold text-base hover:bg-white/20 transition-all duration-300 backdrop-blur-md inline-flex items-center gap-2 transform hover:scale-105"
+              className="bg-gradient-to-r from-amber-500 to-orange-500 border-2 border-amber-400 text-white px-10 py-4 rounded-xl font-bold text-base hover:from-amber-600 hover:to-orange-600 transition-all duration-300 shadow-xl inline-flex items-center gap-2 transform hover:scale-105"
             >
               <Phone size={20} />
               Contact Sales

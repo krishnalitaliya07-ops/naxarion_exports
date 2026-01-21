@@ -19,7 +19,7 @@ export const apiconnector = (method, url, bodyData, headers, params) => {
       combinedHeaders = { ...headers, "Content-Type": "application/json" };
     }
   }
-
+    
   // Log request details in development
   if (import.meta.env.DEV) {
     console.log(`API Request: ${method} ${url}`);

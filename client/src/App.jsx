@@ -7,6 +7,7 @@ import CategoriesPage from './pages/categories/CategoriesPage';
 import AboutPage from './pages/about/AboutPage';
 import ServicesPage from './pages/services/ServicesPage';
 import ContactPage from './pages/contact/ContactPage';
+import SignupPage from './pages/auth/SignupPage';
 
 function App() {
   return (
@@ -44,8 +45,10 @@ function App() {
           <Route path="about" element={<AboutPage />} />
           <Route path="services" element={<ServicesPage />} />
           <Route path="contact" element={<ContactPage />} />
-          {/* Add more routes here as we build them */}
         </Route>
+        {/* Auth routes without layout */}
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/register" element={<SignupPage />} />
       </Routes>
     </>
   );

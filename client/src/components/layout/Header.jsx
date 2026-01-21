@@ -88,10 +88,10 @@ const Header = () => {
                   Sign In
                 </Link>
                 <Link
-                  to="/register"
+                  to="/signup"
                   className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-8 py-2.5 rounded-xl font-bold text-sm hover:shadow-2xl transform hover:scale-105 transition-all flex items-center gap-2"
                 >
-                  Get Started Free
+                  Get Started
                 </Link>
               </>
             )}
@@ -150,11 +150,11 @@ const Header = () => {
                     Sign In
                   </Link>
                   <Link
-                    to="/register"
+                    to="/signup"
                     onClick={() => setMobileMenuOpen(false)}
                     className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-6 py-2.5 rounded-xl font-bold text-center"
                   >
-                    Get Started Free
+                    Get Started
                   </Link>
                 </>
               )}
