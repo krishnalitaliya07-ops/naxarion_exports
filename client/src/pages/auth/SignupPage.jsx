@@ -3,7 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Phone, User, Download, Upload, ShoppingBag, CheckCircle, Globe, Shield, Package, TrendingUp, Users, Truck } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
-import { register } from '../../store/slices/authSlice';
+import { register, setCredentials } from '../../store/slices/authSlice';
+import { auth } from '../../config/firebase';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import axios from 'axios';
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -26,8 +29,37 @@ const SignupPage = () => {
     }));
   };
 
-  const handleGoogleSignup = () => {
-    toast.info('Google signup coming soon!');
+  const handleGoogleSignup = async () => {
+    try {
+      setLoading(true);
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      
+      // Send to backend
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/auth/google`, {
+        email: result.user.email,
+        name: result.user.displayName,
+        photoURL: result.user.photoURL
+      });
+
+      // Store token and user
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      
+      // Update Redux store
+      dispatch(setCredentials({
+        user: response.data.user,
+        token: response.data.token
+      }));
+      
+      toast.success('Google sign-in successful!');
+      navigate('/');
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      toast.error(error.response?.data?.message || 'Google sign-in failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -51,52 +83,53 @@ const SignupPage = () => {
     setLoading(true);
     try {
       await dispatch(register(formData)).unwrap();
-      toast.success('Account created successfully!');
-      navigate('/');
+      toast.success('Registration successful! Check your email for the verification code.');
+      // Always redirect to verification page
+      navigate('/verify-email', { state: { email: formData.email } });
     } catch (error) {
-      toast.error(error.message || 'Registration failed');
+      toast.error(error.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 py-12 px-4">
+    <div className="min-h-screen h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-3 overflow-hidden">
       
       {/* Contained Card */}
-      <div className="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden flex">
+      <div className="w-full max-w-5xl h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex">
       
       {/* Left Side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 p-12 flex-col justify-between relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-teal-600 via-cyan-600 to-blue-600 p-6 flex-col justify-between relative overflow-hidden">
         {/* Decorative Elements */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
         
         <div className="relative z-10">
           {/* Logo */}
-          <Link to="/" className="inline-flex items-center gap-3 mb-16">
-            <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg">
-              <Globe className="text-white" size={30} />
+          <Link to="/" className="inline-flex items-center gap-2 mb-4">
+            <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shadow-lg">
+              <Globe className="text-white" size={24} />
             </div>
             <div>
-              <h1 className="font-black text-2xl text-white">Nexarion</h1>
-              <p className="text-xs text-emerald-50 font-medium uppercase tracking-wide">Global Exports</p>
+              <h1 className="font-black text-xl text-white">Nexarion</h1>
+              <p className="text-[10px] text-emerald-50 font-medium uppercase tracking-wide">Global Exports</p>
             </div>
           </Link>
 
           {/* Main Heading */}
-          <div className="mb-12">
-            <h1 className="text-5xl font-black text-white mb-6 leading-tight">
+          <div className="mb-3">
+            <h1 className="text-3xl font-black text-white mb-2 leading-tight">
               Join Us Today
             </h1>
-            <p className="text-lg text-white/90 leading-relaxed max-w-md">
+            <p className="text-sm text-white/90 leading-snug max-w-md">
               Connect with verified suppliers and buyers worldwide. Start trading with confidence today.
             </p>
           </div>
 
           {/* Image with User Stats */}
-          <div className="bg-white/10 backdrop-blur-md rounded-3xl overflow-hidden mb-10 border border-white/20 shadow-2xl">
-            <div className="relative h-48 bg-gradient-to-br from-teal-400/30 to-cyan-400/30 flex items-center justify-center">
+          <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden mb-3 border border-white/20 shadow-2xl">
+            <div className="relative h-24 bg-gradient-to-br from-teal-400/30 to-cyan-400/30 flex items-center justify-center">
               <img
                 src="https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=500&h=300&fit=crop&q=80"
                 alt="Shipping containers"
@@ -104,74 +137,83 @@ const SignupPage = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-teal-600/60 to-transparent"></div>
             </div>
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <CheckCircle className="text-white" size={24} />
-                <span className="text-white font-bold text-lg">Join 2,847+ Traders</span>
+            <div className="p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle className="text-white" size={20} />
+                <span className="text-white font-bold text-base">Join 2,847+ Traders</span>
               </div>
-              <div className="flex gap-3">
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2.5 border border-white/20">
-                  <span className="text-white text-sm font-semibold">Verified Suppliers</span>
+              <div className="flex gap-2">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-white/20">
+                  <span className="text-white text-xs font-semibold">Verified Suppliers</span>
                 </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2.5 border border-white/20">
-                  <span className="text-white text-sm font-semibold">Secure Payment</span>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-white/20">
+                  <span className="text-white text-xs font-semibold">Secure Payment</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Feature Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 hover:bg-white/15 transition-all">
-              <Package className="text-white mb-3" size={28} />
-              <h3 className="text-white font-bold text-base mb-1">Product Catalog</h3>
-              <p className="text-white/80 text-sm">Browse 673+ listings</p>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="bg-white/10 backdrop-blur-md rounded-lg p-2 border border-white/20 hover:bg-white/15 transition-all">
+              <Package className="text-white mb-1" size={20} />
+              <h3 className="text-white font-bold text-xs mb-0.5">Product Catalog</h3>
+              <p className="text-white/80 text-[10px]">Browse 673+ listings</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 hover:bg-white/15 transition-all">
-              <Truck className="text-white mb-3" size={28} />
-              <h3 className="text-white font-bold text-base mb-1">Global Shipping</h3>
-              <p className="text-white/80 text-sm">Ship to 47 countries</p>
+            <div className="bg-white/10 backdrop-blur-md rounded-lg p-2 border border-white/20 hover:bg-white/15 transition-all">
+              <Truck className="text-white mb-1" size={20} />
+              <h3 className="text-white font-bold text-xs mb-0.5">Global Shipping</h3>
+              <p className="text-white/80 text-[10px]">Ship to 47 countries</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 hover:bg-white/15 transition-all">
-              <Shield className="text-white mb-3" size={28} />
-              <h3 className="text-white font-bold text-base mb-1">Trade Protection</h3>
-              <p className="text-white/80 text-sm">Secure transactions</p>
+            <div className="bg-white/10 backdrop-blur-md rounded-lg p-2 border border-white/20 hover:bg-white/15 transition-all">
+              <Shield className="text-white mb-1" size={20} />
+              <h3 className="text-white font-bold text-xs mb-0.5">Trade Protection</h3>
+              <p className="text-white/80 text-[10px]">Secure transactions</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 hover:bg-white/15 transition-all">
-              <TrendingUp className="text-white mb-3" size={28} />
-              <h3 className="text-white font-bold text-base mb-1">Business Growth</h3>
-              <p className="text-white/80 text-sm">$12.6M trade value</p>
+            <div className="bg-white/10 backdrop-blur-md rounded-lg p-2 border border-white/20 hover:bg-white/15 transition-all">
+              <TrendingUp className="text-white mb-1" size={20} />
+              <h3 className="text-white font-bold text-xs mb-0.5">Business Growth</h3>
+              <p className="text-white/80 text-[10px]">$12.6M trade value</p>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="relative z-10 mt-3 flex items-center gap-3 text-emerald-50 text-xs">
-          <CheckCircle size={16} />
-          <span>Secure</span>
+        <div className="relative z-10 mt-auto flex items-center justify-center gap-3 text-white/90 text-[10px]">
+          <div className="flex items-center gap-1">
+            <CheckCircle size={12} />
+            <span>Secure</span>
+          </div>
           <span>•</span>
-          <Lock size={16} />
-          <span>Encrypted</span>
+          <div className="flex items-center gap-1">
+            <Lock size={12} />
+            <span>Encrypted</span>
+          </div>
           <span>•</span>
           <span>© 2026 Nexarion</span>
         </div>
       </div>
 
       {/* Right Side - Signup Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-12 bg-white">
-        <div className="w-full max-w-md">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 relative overflow-hidden">
+        {/* Decorative circles */}
+        <div className="absolute top-10 right-10 w-32 h-32 bg-teal-100/40 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-20 left-5 w-24 h-24 bg-blue-100/40 rounded-full blur-xl"></div>
+        <div className="absolute top-1/2 right-5 w-16 h-16 bg-emerald-100/30 rounded-full blur-lg"></div>
+        
+        <div className="w-full max-w-md relative z-10">
           
           {/* Header */}
-          <div className="mb-8">
-            <h2 className="text-3xl font-black text-gray-900 mb-2">Create Account</h2>
-            <p className="text-gray-600 text-sm">Fill in your details to get started</p>
+          <div className="mb-2">
+            <h2 className="text-xl font-black text-gray-900 mb-1">Create Account</h2>
+            <p className="text-gray-600 text-xs">Fill in your details to get started</p>
           </div>
 
           {/* Google Signup */}
           <button
             type="button"
             onClick={handleGoogleSignup}
-            className="w-full bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-4 rounded-xl border-2 border-gray-200 flex items-center justify-center gap-3 mb-6 transition-all shadow-sm hover:shadow-md"
+            className="w-full bg-white/90 backdrop-blur-sm hover:bg-white text-gray-700 font-semibold py-2 px-4 rounded-xl border-2 border-gray-200 hover:border-teal-300 flex items-center justify-center gap-2 mb-2 transition-all shadow-sm hover:shadow-lg"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -182,24 +224,24 @@ const SignupPage = () => {
             <span>Continue with Google</span>
           </button>
 
-          <div className="relative mb-6">
+          <div className="relative mb-2">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200"></div>
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-3 bg-white text-gray-500 font-medium">OR</span>
+              <span className="px-3 bg-gradient-to-r from-rose-50 via-orange-50 to-amber-50 text-gray-500 font-medium">OR</span>
             </div>
           </div>
 
           {/* Signup Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-2">
             
             {/* Account Type */}
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
+              <label className="block text-[10px] font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
                 I am a <span className="text-red-500">*</span>
               </label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2">
                 {[
                   { value: 'importer', iconComponent: Download, label: 'Importer' },
                   { value: 'exporter', iconComponent: Upload, label: 'Exporter' },
@@ -214,9 +256,9 @@ const SignupPage = () => {
                       onChange={handleChange}
                       className="peer sr-only"
                     />
-                    <div className="bg-white border-2 border-gray-200 peer-checked:border-teal-500 peer-checked:bg-teal-50 rounded-xl p-3 text-center transition-all hover:border-gray-300 hover:shadow-sm">
-                      <IconComponent className="text-teal-600 mx-auto mb-1.5" size={20} />
-                      <p className="text-xs font-bold text-gray-800">{label}</p>
+                    <div className="bg-white border-2 border-gray-200 peer-checked:border-teal-500 peer-checked:bg-teal-50 rounded-lg p-2 text-center transition-all hover:border-gray-300 hover:shadow-sm">
+                      <IconComponent className="text-teal-600 mx-auto mb-0.5" size={16} />
+                      <p className="text-[10px] font-bold text-gray-800">{label}</p>
                     </div>
                   </label>
                 ))}
@@ -225,7 +267,7 @@ const SignupPage = () => {
 
             {/* Full Name */}
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
+              <label className="block text-[10px] font-bold text-gray-700 mb-1 uppercase tracking-wide">
                 Full Name <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -237,14 +279,14 @@ const SignupPage = () => {
                   onChange={handleChange}
                   placeholder="John Doe"
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:border-teal-500 focus:outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:border-teal-500 focus:outline-none focus:bg-white transition-all"
                 />
               </div>
             </div>
 
             {/* Email */}
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
+              <label className="block text-[10px] font-bold text-gray-700 mb-1 uppercase tracking-wide">
                 Email Address <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -256,14 +298,14 @@ const SignupPage = () => {
                   onChange={handleChange}
                   placeholder="john@example.com"
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:border-teal-500 focus:outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:border-teal-500 focus:outline-none focus:bg-white transition-all"
                 />
               </div>
             </div>
 
             {/* Phone Number */}
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
+              <label className="block text-[10px] font-bold text-gray-700 mb-1 uppercase tracking-wide">
                 Phone Number <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -275,14 +317,14 @@ const SignupPage = () => {
                   onChange={handleChange}
                   placeholder="+1 (555) 000-0000"
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:border-teal-500 focus:outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:border-teal-500 focus:outline-none focus:bg-white transition-all"
                 />
               </div>
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
+              <label className="block text-[10px] font-bold text-gray-700 mb-1 uppercase tracking-wide">
                 Password <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -295,10 +337,10 @@ const SignupPage = () => {
                   placeholder="Create a strong password"
                   required
                   minLength={8}
-                  className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:border-teal-500 focus:outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:border-teal-500 focus:outline-none focus:bg-white transition-all"
                 />
               </div>
-              <p className="text-xs text-gray-500 mt-1.5">Minimum 8 characters</p>
+              <p className="text-[10px] text-gray-500 mt-0.5">Minimum 8 characters</p>
             </div>
 
             {/* Terms Checkbox */}
@@ -311,7 +353,7 @@ const SignupPage = () => {
                 required
                 className="w-4 h-4 mt-0.5 rounded border-gray-300 text-teal-600 focus:ring-2 focus:ring-teal-500 cursor-pointer"
               />
-              <label className="text-xs text-gray-600 leading-relaxed">
+              <label className="text-[10px] text-gray-600 leading-snug">
                 I agree to the{' '}
                 <Link to="/terms" className="text-teal-600 hover:text-teal-700 font-semibold hover:underline">
                   Terms & Conditions
@@ -327,7 +369,7 @@ const SignupPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-bold py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-teal-500/30 hover:shadow-xl hover:shadow-teal-500/40"
+              className="w-full bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-bold py-2 px-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-teal-500/30 hover:shadow-xl hover:shadow-teal-500/40"
             >
               {loading ? (
                 <>
@@ -344,7 +386,7 @@ const SignupPage = () => {
           </form>
 
           {/* Sign In Link */}
-          <p className="text-center text-sm text-gray-600 mt-6">
+          <p className="text-center text-xs text-gray-600 mt-2">
             Already have an account?{' '}
             <Link to="/login" className="text-teal-600 hover:text-teal-700 font-bold hover:underline">
               Sign In
@@ -352,7 +394,7 @@ const SignupPage = () => {
           </p>
 
           {/* Terms Footer */}
-          <p className="text-center text-xs text-gray-500 mt-6">
+          <p className="text-center text-[10px] text-gray-500 mt-1.5">
             By signing up you agree to our{' '}
             <Link to="/terms" className="text-teal-600 hover:underline">Terms</Link>
             {' & '}

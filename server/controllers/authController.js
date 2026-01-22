@@ -1,33 +1,67 @@
 const asyncHandler = require('express-async-handler');
 const crypto = require('crypto');
 const User = require('../models/User');
+const PendingUser = require('../models/PendingUser');
 const { ErrorResponse } = require('../middleware/error');
+const { sendVerificationEmail, sendPasswordResetEmail, sendWelcomeEmail } = require('../config/email');
 
-// @desc    Register user
+// @desc    Register user (sends verification code)
 // @route   POST /api/auth/register
 // @access  Public
 exports.register = asyncHandler(async (req, res, next) => {
   const { name, email, password, role, phone, company, country } = req.body;
 
-  // Check if user already exists
+  // Check if user already exists (fully registered)
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    return next(new ErrorResponse('User already exists with this email', 400));
+    return next(new ErrorResponse('An account with this email already exists. Please login instead.', 400));
   }
 
-  // Create user
-  const user = await User.create({
-    name,
-    email,
-    password,
-    role: role || 'buyer',
-    phone,
-    company,
-    country
-  });
+  // Check if pending registration exists
+  let pendingUser = await PendingUser.findOne({ email });
+  
+  if (pendingUser) {
+    // Update existing pending registration
+    pendingUser.name = name;
+    pendingUser.password = password;
+    pendingUser.role = role || 'customer';
+    pendingUser.phone = phone;
+    pendingUser.company = company;
+    pendingUser.country = country;
+  } else {
+    // Create new pending registration
+    pendingUser = await PendingUser.create({
+      name,
+      email,
+      password,
+      role: role || 'customer',
+      phone,
+      company,
+      country
+    });
+  }
 
-  // Generate token and send response
-  sendTokenResponse(user, 201, res);
+  // Generate verification code
+  const verificationCode = pendingUser.generateVerificationCode();
+  await pendingUser.save();
+
+  // Send verification email
+  try {
+    await sendVerificationEmail(email, name, verificationCode);
+    
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful! Please check your email for verification code.',
+      email: pendingUser.email
+    });
+  } catch (error) {
+    console.log('Email sending failed:', error.message);
+    
+    // Delete pending user if email fails
+    await PendingUser.findByIdAndDelete(pendingUser._id);
+    
+    return next(new ErrorResponse('Unable to send verification email. Please check your email address or try again later.', 500));
+  }
 });
 
 // @desc    Login user
@@ -36,21 +70,41 @@ exports.register = asyncHandler(async (req, res, next) => {
 exports.login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
 
+  // Validate inputs
+  if (!email || !password) {
+    return next(new ErrorResponse('Please provide email and password', 400));
+  }
+
   // Check if user exists
   const user = await User.findOne({ email }).select('+password');
   if (!user) {
-    return next(new ErrorResponse('Invalid credentials', 401));
+    // Check if user is in pending state
+    const pendingUser = await PendingUser.findOne({ email });
+    if (pendingUser) {
+      return next(new ErrorResponse('Please verify your email first. Check your inbox for the verification code.', 403));
+    }
+    return next(new ErrorResponse('Invalid email or password', 401));
+  }
+
+  // Check if user registered via Google
+  if (user.authProvider === 'google' && !user.password) {
+    return next(new ErrorResponse('This account was created using Google. Please sign in with Google.', 400));
   }
 
   // Check if password matches
   const isMatch = await user.comparePassword(password);
   if (!isMatch) {
-    return next(new ErrorResponse('Invalid credentials', 401));
+    return next(new ErrorResponse('Invalid email or password', 401));
+  }
+
+  // Check if email is verified
+  if (!user.isEmailVerified) {
+    return next(new ErrorResponse('Please verify your email before logging in. Check your inbox for the verification code.', 403));
   }
 
   // Check if user is active
   if (!user.isActive) {
-    return next(new ErrorResponse('Your account has been deactivated', 403));
+    return next(new ErrorResponse('Your account has not been activated. Please contact support.', 403));
   }
 
   sendTokenResponse(user, 200, res);
@@ -119,30 +173,27 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('No user found with that email', 404));
   }
 
-  // Get reset token
-  const resetToken = crypto.randomBytes(20).toString('hex');
-
-  // Hash token and set to resetPasswordToken field
-  user.resetPasswordToken = crypto
-    .createHash('sha256')
-    .update(resetToken)
-    .digest('hex');
-
-  // Set expire
-  user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
-
+  // Generate reset token
+  const resetToken = user.generatePasswordResetToken();
   await user.save({ validateBeforeSave: false });
 
-  // Create reset url
-  const resetUrl = `${req.protocol}://${req.get('host')}/api/auth/resetpassword/${resetToken}`;
+  // Create reset URL
+  const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
-  // TODO: Send email with resetUrl
-  // For now, just send the token in response
-  res.status(200).json({
-    success: true,
-    message: 'Password reset token generated',
-    resetToken // Remove this in production, send via email only
-  });
+  try {
+    await sendPasswordResetEmail(user.email, user.name, resetUrl);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Password reset email sent successfully'
+    });
+  } catch (error) {
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save({ validateBeforeSave: false });
+    
+    return next(new ErrorResponse('Email could not be sent', 500));
+  }
 });
 
 // @desc    Reset password
@@ -170,12 +221,100 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   user.resetPasswordExpire = undefined;
   await user.save();
 
+  res.status(200).json({
+    success: true,
+    message: 'Password reset successful'
+  });
+});
+
+// @desc    Verify email with code
+// @route   POST /api/auth/verify-email
+// @access  Public
+exports.verifyEmail = asyncHandler(async (req, res, next) => {
+  const { email, code } = req.body;
+
+  // Hash the provided code to compare with stored hash
+  const hashedCode = crypto
+    .createHash('sha256')
+    .update(code)
+    .digest('hex');
+
+  // Find pending user with matching code
+  const pendingUser = await PendingUser.findOne({
+    email,
+    verificationCode: hashedCode,
+    verificationCodeExpire: { $gt: Date.now() }
+  });
+
+  if (!pendingUser) {
+    return next(new ErrorResponse('Invalid or expired verification code', 400));
+  }
+
+  // Create actual user account
+  // Password is already hashed from PendingUser - User model will detect this
+  const user = await User.create({
+    name: pendingUser.name,
+    email: pendingUser.email,
+    password: pendingUser.password, // Already hashed, User model will skip re-hashing
+    role: pendingUser.role,
+    phone: pendingUser.phone,
+    company: pendingUser.company,
+    country: pendingUser.country,
+    isEmailVerified: true,
+    isActive: true
+  });
+
+  // Delete pending user after successful verification
+  await PendingUser.findByIdAndDelete(pendingUser._id);
+
+  // Send welcome email (non-blocking)
+  sendWelcomeEmail(user.email, user.name, user.role).catch(err => {
+    console.log('Welcome email failed:', err.message);
+  });
+
+  // Send token response for auto-login
   sendTokenResponse(user, 200, res);
 });
 
+// @desc    Resend verification code
+// @route   POST /api/auth/resend-code
+// @access  Public
+exports.resendCode = asyncHandler(async (req, res, next) => {
+  const { email } = req.body;
+
+  // Check if user already verified
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return next(new ErrorResponse('Email already verified. Please login.', 400));
+  }
+
+  // Find pending user
+  const pendingUser = await PendingUser.findOne({ email });
+
+  if (!pendingUser) {
+    return next(new ErrorResponse('No pending registration found with this email. Please register first.', 404));
+  }
+
+  // Generate new verification code
+  const verificationCode = pendingUser.generateVerificationCode();
+  await pendingUser.save();
+
+  // Send verification email
+  try {
+    await sendVerificationEmail(email, pendingUser.name, verificationCode);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Verification code resent successfully'
+    });
+  } catch (error) {
+    return next(new ErrorResponse('Unable to send verification email. Please try again.', 500));
+  }
+});
+
 // @desc    Logout user / clear cookie
-// @route   GET /api/auth/logout
-// @access  Private
+// @route   POST /api/auth/logout
+// @access  Public
 exports.logout = asyncHandler(async (req, res, next) => {
   res.cookie('token', 'none', {
     expires: new Date(Date.now() + 10 * 1000),
@@ -184,8 +323,68 @@ exports.logout = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: 'Logged out successfully'
+    message: 'Logged out successfully',
+    data: null
   });
+});
+
+// @desc    Google Firebase login
+// @route   POST /api/auth/google
+// @access  Public
+exports.googleLogin = asyncHandler(async (req, res, next) => {
+  const { idToken, email, name, photoURL } = req.body;
+
+  if (!email) {
+    return next(new ErrorResponse('Email is required from Google sign-in', 400));
+  }
+
+  // Check if user exists
+  let user = await User.findOne({ email });
+
+  if (user) {
+    // User exists - login
+    if (!user.isActive) {
+      user.isActive = true;
+      user.isEmailVerified = true;
+      await user.save();
+    }
+    
+    return sendTokenResponse(user, 200, res);
+  }
+
+  // Create new user from Google data
+  user = await User.create({
+    name: name || email.split('@')[0],
+    email,
+    password: Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8), // Random password
+    role: 'customer',
+    avatar: photoURL ? { url: photoURL } : undefined,
+    authProvider: 'google',
+    isEmailVerified: true,
+    isActive: true
+  });
+
+  sendTokenResponse(user, 201, res);
+});
+
+// @desc    Google OAuth callback
+// @route   GET /api/auth/google/callback
+// @access  Public
+exports.googleCallback = asyncHandler(async (req, res, next) => {
+  // User is authenticated by passport
+  const token = req.user.getJWTToken();
+  const user = {
+    id: req.user._id,
+    name: req.user.name,
+    email: req.user.email,
+    role: req.user.role,
+    isVerified: req.user.isVerified,
+    isEmailVerified: req.user.isEmailVerified
+  };
+
+  // Redirect to frontend with token and user data
+  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+  res.redirect(`${clientUrl}/auth/google/callback?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
 });
 
 // Helper function to get token from model, create cookie and send response
@@ -215,7 +414,8 @@ const sendTokenResponse = (user, statusCode, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        isVerified: user.isVerified
+        isVerified: user.isVerified,
+        isEmailVerified: user.isEmailVerified
       }
     });
 };

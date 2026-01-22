@@ -10,7 +10,9 @@ export const authEndpoints = {
   UPDATE_PASSWORD_API: BASE_URL + "/auth/updatepassword",
   FORGOT_PASSWORD_API: BASE_URL + "/auth/forgotpassword",
   RESET_PASSWORD_API: (token) => BASE_URL + `/auth/resetpassword/${token}`,
-  VERIFY_EMAIL_API: (token) => BASE_URL + `/auth/verifyemail/${token}`,
+  VERIFY_EMAIL_API: BASE_URL + "/auth/verify-email",
+  RESEND_CODE_API: BASE_URL + "/auth/resend-code",
+  GOOGLE_AUTH_API: BASE_URL + "/auth/google",
 };
 
 // PRODUCT ENDPOINTS

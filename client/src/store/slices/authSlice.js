@@ -85,16 +85,14 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Register
+      // Register (no longer sets credentials, just returns response)
       .addCase(register.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(register.fulfilled, (state, action) => {
+      .addCase(register.fulfilled, (state) => {
         state.isLoading = false;
-        state.user = action.payload.user;
-        state.token = action.payload.token;
-        state.isAuthenticated = true;
+        // Don't set credentials here - wait for email verification
       })
       .addCase(register.rejected, (state, action) => {
         state.isLoading = false;

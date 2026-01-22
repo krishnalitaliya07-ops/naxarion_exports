@@ -32,7 +32,7 @@ exports.registerValidation = [
     .isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   body('role')
     .optional()
-    .isIn(['buyer', 'supplier', 'admin']).withMessage('Invalid role')
+    .isIn(['buyer', 'supplier', 'admin', 'importer', 'exporter', 'customer']).withMessage('Invalid role')
 ];
 
 exports.loginValidation = [

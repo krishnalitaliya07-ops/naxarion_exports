@@ -58,6 +58,38 @@
   }
 }
 
+/* Toast notification animations */
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-100%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100%) scale(0.95);
+  }
+}
+
+/* Custom toast styles */
+.react-hot-toast > div {
+  animation: toastSlideIn 0.3s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+}
+
+.react-hot-toast > div[data-visible="false"] {
+  animation: toastSlideOut 0.2s cubic-bezier(0.06, 0.71, 0.55, 1) forwards;
+}
+
 /* Animation Classes */
 .animate-fadeInUp {
   animation: fadeInUp 0.8s ease-out;

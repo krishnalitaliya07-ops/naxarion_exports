@@ -9,8 +9,11 @@ const rateLimit = require('express-rate-limit');
 const xss = require('xss');
 const hpp = require('hpp');
 const fileUpload = require('express-fileupload');
+const session = require('express-session');
+const passport = require('./config/passport');
 const connectDB = require('./config/database');
 const { errorHandler } = require('./middleware/error');
+const { startCleanupJob } = require('./utils/cleanup');
 
 // Load environment variables
 dotenv.config();
@@ -18,12 +21,27 @@ dotenv.config();
 // Connect to database
 connectDB();
 
+// Start cleanup job for unverified users
+startCleanupJob();
+
 const app = express();
 
 // Security middleware
 app.use(helmet());
 app.use(mongoSanitize());
 app.use(hpp());
+
+// Session middleware (required for passport)
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: process.env.NODE_ENV === 'production' }
+}));
+
+// Initialize passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Rate limiting
 const limiter = rateLimit({
