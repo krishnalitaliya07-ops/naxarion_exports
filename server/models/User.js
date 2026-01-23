@@ -50,8 +50,7 @@ const userSchema = new mongoose.Schema({
     country: String
   },
   avatar: {
-    public_id: String,
-    url: String
+    type: String
   },
   isVerified: {
     type: Boolean,
@@ -65,6 +64,30 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  // Settings
+  settings: {
+    notifications: {
+      email: {
+        orderUpdates: { type: Boolean, default: true },
+        promotions: { type: Boolean, default: true },
+        newsletter: { type: Boolean, default: false }
+      },
+      push: {
+        orderUpdates: { type: Boolean, default: true },
+        messages: { type: Boolean, default: true }
+      }
+    },
+    privacy: {
+      profileVisibility: { type: String, enum: ['public', 'private'], default: 'public' },
+      showEmail: { type: Boolean, default: false }
+    },
+    language: { type: String, default: 'en' },
+    timezone: { type: String, default: 'UTC' },
+    currency: { type: String, default: 'USD' }
+  },
+  city: String,
+  postalCode: String,
+  bio: String,
   verificationCode: String,
   verificationCodeExpire: Date,
   resetPasswordToken: String,
@@ -76,7 +99,22 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['local', 'google'],
     default: 'local'
-  }
+  },
+  // Product interactions
+  favorites: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product'
+  }],
+  recentlyViewed: [{
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product'
+    },
+    viewedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }]
 }, {
   timestamps: true
 });

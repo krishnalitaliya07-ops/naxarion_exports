@@ -12,7 +12,9 @@ const {
   verifyEmail,
   resendCode,
   googleCallback,
-  googleLogin
+  googleLogin,
+  getUserSettings,
+  updateUserSettings
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const { validate, registerValidation, loginValidation } = require('../middleware/validation');
@@ -51,5 +53,7 @@ router.post('/logout', logout);
 router.get('/me', protect, getMe);
 router.put('/updatedetails', protect, updateDetails);
 router.put('/updatepassword', protect, updatePassword);
+router.get('/settings', protect, getUserSettings);
+router.put('/settings', protect, updateUserSettings);
 
 module.exports = router;

@@ -9,11 +9,14 @@ const { sendVerificationEmail, sendPasswordResetEmail, sendWelcomeEmail } = requ
 // @route   POST /api/auth/register
 // @access  Public
 exports.register = asyncHandler(async (req, res, next) => {
+  console.log('\n📝 ===== REGISTRATION STARTED =====');
   const { name, email, password, role, phone, company, country } = req.body;
+  console.log('Registration data:', { name, email, role, phone, company, country });
 
   // Check if user already exists (fully registered)
   const existingUser = await User.findOne({ email });
   if (existingUser) {
+    console.log('❌ User already exists:', email);
     return next(new ErrorResponse('An account with this email already exists. Please login instead.', 400));
   }
 
@@ -21,6 +24,7 @@ exports.register = asyncHandler(async (req, res, next) => {
   let pendingUser = await PendingUser.findOne({ email });
   
   if (pendingUser) {
+    console.log('⚠️  Updating existing pending registration for:', email);
     // Update existing pending registration
     pendingUser.name = name;
     pendingUser.password = password;
@@ -29,6 +33,7 @@ exports.register = asyncHandler(async (req, res, next) => {
     pendingUser.company = company;
     pendingUser.country = country;
   } else {
+    console.log('✨ Creating new pending registration for:', email);
     // Create new pending registration
     pendingUser = await PendingUser.create({
       name,
@@ -44,10 +49,14 @@ exports.register = asyncHandler(async (req, res, next) => {
   // Generate verification code
   const verificationCode = pendingUser.generateVerificationCode();
   await pendingUser.save();
+  console.log('🔑 Verification code generated:', verificationCode);
 
   // Send verification email
   try {
+    console.log('📧 Sending verification email...');
     await sendVerificationEmail(email, name, verificationCode);
+    console.log('✅ Verification email sent successfully');
+    console.log('===== REGISTRATION COMPLETED =====\n');
     
     res.status(201).json({
       success: true,
@@ -55,7 +64,8 @@ exports.register = asyncHandler(async (req, res, next) => {
       email: pendingUser.email
     });
   } catch (error) {
-    console.log('Email sending failed:', error.message);
+    console.log('❌ Email sending failed:', error.message);
+    console.log('===== REGISTRATION FAILED =====\n');
     
     // Delete pending user if email fails
     await PendingUser.findByIdAndDelete(pendingUser._id);
@@ -68,16 +78,20 @@ exports.register = asyncHandler(async (req, res, next) => {
 // @route   POST /api/auth/login
 // @access  Public
 exports.login = asyncHandler(async (req, res, next) => {
+  console.log('\n🔐 ===== LOGIN ATTEMPT =====');
   const { email, password } = req.body;
+  console.log('Login attempt for:', email);
 
   // Validate inputs
   if (!email || !password) {
+    console.log('❌ Missing credentials');
     return next(new ErrorResponse('Please provide email and password', 400));
   }
 
   // Check if user exists
   const user = await User.findOne({ email }).select('+password');
   if (!user) {
+    console.log('⚠️  User not found, checking pending registrations...');
     // Check if user is in pending state
     const pendingUser = await PendingUser.findOne({ email });
     if (pendingUser) {
@@ -126,22 +140,47 @@ exports.getMe = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/auth/updatedetails
 // @access  Private
 exports.updateDetails = asyncHandler(async (req, res, next) => {
+  console.log('\n📝 ===== UPDATE PROFILE STARTED =====');
+  console.log('User ID:', req.user.id);
+  console.log('Current User:', req.user.name, '|', req.user.email);
+  console.log('Fields to update:', req.body);
+  
   const fieldsToUpdate = {
     name: req.body.name,
     email: req.body.email,
     phone: req.body.phone,
     company: req.body.company,
     country: req.body.country,
-    address: req.body.address
+    address: req.body.address,
+    city: req.body.city,
+    postalCode: req.body.postalCode,
+    bio: req.body.bio
   };
+
+  // Remove undefined fields
+  Object.keys(fieldsToUpdate).forEach(key => 
+    fieldsToUpdate[key] === undefined && delete fieldsToUpdate[key]
+  );
+
+  console.log('Filtered fields to update:', fieldsToUpdate);
 
   const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
     new: true,
     runValidators: true
+  }).select('-password');
+
+  console.log('✅ Profile updated successfully');
+  console.log('Updated user:', {
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    company: user.company
   });
+  console.log('===== UPDATE COMPLETED =====\n');
 
   res.status(200).json({
     success: true,
+    message: 'Profile updated successfully',
     data: user
   });
 });
@@ -150,15 +189,22 @@ exports.updateDetails = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/auth/updatepassword
 // @access  Private
 exports.updatePassword = asyncHandler(async (req, res, next) => {
+  console.log('\n🔐 ===== UPDATE PASSWORD =====');
+  console.log('User ID:', req.user.id);
+  
   const user = await User.findById(req.user.id).select('+password');
 
   // Check current password
   if (!(await user.comparePassword(req.body.currentPassword))) {
+    console.log('❌ Current password incorrect');
     return next(new ErrorResponse('Password is incorrect', 401));
   }
 
   user.password = req.body.newPassword;
   await user.save();
+
+  console.log('✅ Password updated successfully');
+  console.log('===== PASSWORD UPDATE COMPLETED =====\n');
 
   sendTokenResponse(user, 200, res);
 });
@@ -419,3 +465,47 @@ const sendTokenResponse = (user, statusCode, res) => {
       }
     });
 };
+
+// @desc    Get user settings
+// @route   GET /api/auth/settings
+// @access  Private
+exports.getUserSettings = asyncHandler(async (req, res, next) => {
+  console.log('\n⚙️  ===== GET USER SETTINGS =====');
+  console.log('User ID:', req.user.id);
+  
+  const user = await User.findById(req.user.id).select('settings');
+  
+  console.log('Current settings:', user.settings);
+  console.log('===== SETTINGS RETRIEVED =====\n');
+
+  res.status(200).json({
+    success: true,
+    data: user.settings || {}
+  });
+});
+
+// @desc    Update user settings
+// @route   PUT /api/auth/settings
+// @access  Private
+exports.updateUserSettings = asyncHandler(async (req, res, next) => {
+  console.log('\n⚙️  ===== UPDATE USER SETTINGS =====');
+  console.log('User ID:', req.user.id);
+  console.log('Settings to update:', req.body);
+
+  const user = await User.findByIdAndUpdate(
+    req.user.id,
+    { settings: req.body },
+    { new: true, runValidators: true }
+  ).select('settings');
+
+  console.log('✅ Settings updated');
+  console.log('Updated settings:', user.settings);
+  console.log('===== UPDATE COMPLETED =====\n');
+
+  res.status(200).json({
+    success: true,
+    message: 'Settings updated successfully',
+    data: user.settings
+  });
+});
+

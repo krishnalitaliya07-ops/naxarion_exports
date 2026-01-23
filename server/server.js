@@ -93,7 +93,8 @@ app.get('/', (req, res) => {
       reviews: '/api/reviews',
       contacts: '/api/contacts',
       notifications: '/api/notifications',
-      settings: '/api/settings'
+      settings: '/api/settings',
+      dashboard: '/api/dashboard'
     }
   });
 });
@@ -112,6 +113,7 @@ app.use('/api/reviews', require('./routes/reviewRoutes'));
 app.use('/api/contacts', require('./routes/contactRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes'));
+app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 
 // Error handler middleware (must be last)
 app.use(errorHandler);

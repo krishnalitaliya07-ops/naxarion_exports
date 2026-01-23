@@ -1,5 +1,20 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
+// DASHBOARD ENDPOINTS
+export const dashboardEndpoints = {
+  GET_OVERVIEW_API: BASE_URL + "/dashboard/overview",
+  GET_STATS_API: BASE_URL + "/dashboard/stats",
+  GET_ACTIVITY_API: BASE_URL + "/dashboard/activity",
+  GET_ORDERS_API: BASE_URL + "/dashboard/orders",
+  GET_QUOTES_API: BASE_URL + "/dashboard/quotes",
+  GET_SHIPMENTS_API: BASE_URL + "/dashboard/shipments",
+  GET_FAVORITES_API: BASE_URL + "/dashboard/favorites",
+  ADD_TO_FAVORITES_API: (productId) => BASE_URL + `/dashboard/favorites/${productId}`,
+  REMOVE_FROM_FAVORITES_API: (productId) => BASE_URL + `/dashboard/favorites/${productId}`,
+  GET_RECENTLY_VIEWED_API: BASE_URL + "/dashboard/recently-viewed",
+  ADD_TO_RECENTLY_VIEWED_API: (productId) => BASE_URL + `/dashboard/recently-viewed/${productId}`,
+};
+
 // AUTH ENDPOINTS
 export const authEndpoints = {
   REGISTER_API: BASE_URL + "/auth/register",
@@ -13,6 +28,8 @@ export const authEndpoints = {
   VERIFY_EMAIL_API: BASE_URL + "/auth/verify-email",
   RESEND_CODE_API: BASE_URL + "/auth/resend-code",
   GOOGLE_AUTH_API: BASE_URL + "/auth/google",
+  GET_SETTINGS_API: BASE_URL + "/auth/settings",
+  UPDATE_SETTINGS_API: BASE_URL + "/auth/settings",
 };
 
 // PRODUCT ENDPOINTS
@@ -143,6 +160,7 @@ export const userEndpoints = {
   BLOCK_USER_API: (id) => BASE_URL + `/users/${id}/block`,
   UNBLOCK_USER_API: (id) => BASE_URL + `/users/${id}/unblock`,
   GET_USER_STATS_API: BASE_URL + "/users/stats",
+  UPLOAD_PROFILE_PHOTO_API: BASE_URL + "/users/upload-photo",
 };
 
 // SETTINGS ENDPOINTS

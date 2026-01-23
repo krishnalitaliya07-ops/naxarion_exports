@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
 const { ErrorResponse } = require('../middleware/error');
+const cloudinary = require('../config/cloudinary');
 
 // @desc    Get all users (Admin only)
 // @route   GET /api/users
@@ -169,3 +170,90 @@ exports.getUserStats = asyncHandler(async (req, res, next) => {
     }
   });
 });
+
+// @desc    Upload profile photo
+// @route   POST /api/users/upload-photo
+// @access  Private
+exports.uploadProfilePhoto = asyncHandler(async (req, res, next) => {
+  console.log('\n📤 ===== PROFILE PHOTO UPLOAD STARTED =====');
+  console.log('User ID:', req.user.id);
+  console.log('User Name:', req.user.name);
+  
+  if (!req.files || !req.files.file) {
+    console.log('❌ No file uploaded');
+    return next(new ErrorResponse('Please upload a file', 400));
+  }
+
+  const file = req.files.file;
+  console.log('📁 File received:', {
+    name: file.name,
+    size: `${(file.size / 1024).toFixed(2)} KB`,
+    mimetype: file.mimetype,
+    tempPath: file.tempFilePath
+  });
+
+  // Validate file type
+  if (!file.mimetype.startsWith('image')) {
+    console.log('❌ Invalid file type:', file.mimetype);
+    return next(new ErrorResponse('Please upload an image file', 400));
+  }
+
+  // Check file size (max 5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    console.log('❌ File too large:', `${(file.size / 1024 / 1024).toFixed(2)} MB`);
+    return next(new ErrorResponse('Image size should be less than 5MB', 400));
+  }
+
+  try {
+    console.log('☁️  Uploading to Cloudinary...');
+    
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(file.tempFilePath, {
+      folder: 'user_profiles',
+      resource_type: 'image',
+      transformation: [
+        { width: 500, height: 500, crop: 'fill', gravity: 'face' },
+        { quality: 'auto' }
+      ]
+    });
+
+    console.log('✅ Cloudinary upload successful!');
+    console.log('📸 Image URL:', result.secure_url);
+    console.log('🆔 Cloudinary Public ID:', result.public_id);
+    console.log('📊 Image details:', {
+      width: result.width,
+      height: result.height,
+      format: result.format,
+      size: `${(result.bytes / 1024).toFixed(2)} KB`
+    });
+
+    console.log('💾 Updating user in database...');
+    
+    // Update user with new avatar URL
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { avatar: result.secure_url },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    console.log('✅ User updated successfully');
+    console.log('👤 Updated user avatar:', user.avatar);
+    console.log('===== UPLOAD COMPLETED SUCCESSFULLY =====\n');
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile photo uploaded successfully',
+      data: {
+        avatar: result.secure_url,
+        user
+      }
+    });
+  } catch (error) {
+    console.error('\n❌ ===== CLOUDINARY UPLOAD ERROR =====');
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('===== ERROR END =====\n');
+    return next(new ErrorResponse('Failed to upload image', 500));
+  }
+});
+

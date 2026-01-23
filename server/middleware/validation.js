@@ -4,6 +4,11 @@ const { body, param, query, validationResult } = require('express-validator');
 exports.validate = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log('\n❌ ========== VALIDATION FAILED ==========');
+    console.log('Route:', req.method, req.originalUrl);
+    console.log('Validation Errors:', JSON.stringify(errors.array(), null, 2));
+    console.log('Request Body:', JSON.stringify(req.body, null, 2));
+    console.log('==========================================\n');
     return res.status(400).json({
       success: false,
       message: 'Validation failed',
@@ -78,14 +83,27 @@ exports.createProductValidation = [
 // Quote validation rules
 exports.createQuoteValidation = [
   body('product')
-    .notEmpty().withMessage('Product is required')
+    .optional()
     .isMongoId().withMessage('Invalid product ID'),
+  body('productName')
+    .notEmpty().withMessage('Product name is required')
+    .isLength({ max: 200 }).withMessage('Product name cannot exceed 200 characters'),
+  body('category')
+    .notEmpty().withMessage('Category is required'),
   body('quantity')
     .notEmpty().withMessage('Quantity is required')
     .isInt({ min: 1 }).withMessage('Quantity must be at least 1'),
-  body('requirements')
+  body('description')
+    .notEmpty().withMessage('Description is required')
+    .isLength({ max: 1000 }).withMessage('Description cannot exceed 1000 characters'),
+  body('specifications')
     .optional()
-    .isLength({ max: 1000 }).withMessage('Requirements cannot exceed 1000 characters')
+    .isLength({ max: 1000 }).withMessage('Specifications cannot exceed 1000 characters'),
+  body('deliveryLocation.country')
+    .notEmpty().withMessage('Delivery country is required'),
+  body('urgency')
+    .optional()
+    .isIn(['Low', 'Medium', 'High', 'Urgent']).withMessage('Invalid urgency level')
 ];
 
 // Order validation rules

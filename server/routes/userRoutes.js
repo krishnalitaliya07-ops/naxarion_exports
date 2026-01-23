@@ -7,7 +7,8 @@ const {
   deleteUser,
   toggleActiveStatus,
   getUsersByRole,
-  getUserStats
+  getUserStats,
+  uploadProfilePhoto
 } = require('../controllers/userController');
 const { protect, authorize } = require('../middleware/auth');
 const { validate, validateId } = require('../middleware/validation');
@@ -16,7 +17,10 @@ const User = require('../models/User');
 
 const router = express.Router();
 
-// All routes require authentication and admin role
+// Upload photo route (requires only authentication)
+router.post('/upload-photo', protect, uploadProfilePhoto);
+
+// All other routes require authentication and admin role
 router.use(protect);
 router.use(authorize('admin'));
 

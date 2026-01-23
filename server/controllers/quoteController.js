@@ -70,22 +70,50 @@ exports.getQuote = asyncHandler(async (req, res, next) => {
 // @route   POST /api/quotes
 // @access  Private/Buyer
 exports.createQuote = asyncHandler(async (req, res, next) => {
-  req.body.buyer = req.user.id;
+  console.log('\n========== CREATE QUOTE REQUEST ==========');
+  console.log('User ID:', req.user?.id);
+  console.log('User Info:', { name: req.user?.name, email: req.user?.email, role: req.user?.role });
+  console.log('Request Body:', JSON.stringify(req.body, null, 2));
 
-  // Get product and validate
-  const product = await Product.findById(req.body.product).populate('supplier');
-  if (!product) {
-    return next(new ErrorResponse(`Product not found with id of ${req.body.product}`, 404));
+  req.body.customer = req.user.id;
+
+  // If product ID is provided, get product and validate
+  if (req.body.product) {
+    console.log('Product ID provided:', req.body.product);
+    const product = await Product.findById(req.body.product).populate('supplier');
+    if (!product) {
+      console.log('ERROR: Product not found');
+      return next(new ErrorResponse(`Product not found with id of ${req.body.product}`, 404));
+    }
+    console.log('Product found:', product.name);
+    req.body.supplier = product.supplier._id;
   }
 
-  req.body.supplier = product.supplier._id;
+  // Add customer info from user
+  req.body.customerInfo = {
+    name: req.user.name,
+    email: req.user.email,
+    phone: req.user.phone || '',
+    company: req.user.company || ''
+  };
 
-  const quote = await Quote.create(req.body);
+  console.log('Final Quote Data:', JSON.stringify(req.body, null, 2));
 
-  res.status(201).json({
-    success: true,
-    data: quote
-  });
+  try {
+    const quote = await Quote.create(req.body);
+    console.log('Quote created successfully:', quote._id);
+    console.log('==========================================\n');
+
+    res.status(201).json({
+      success: true,
+      data: quote
+    });
+  } catch (error) {
+    console.log('ERROR creating quote:', error.message);
+    console.log('Validation errors:', error.errors);
+    console.log('==========================================\n');
+    throw error;
+  }
 });
 
 // @desc    Update quote (supplier response)

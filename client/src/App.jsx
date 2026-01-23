@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Layout from './components/layout/Layout';
+import DashboardLayout from './components/dashboard/DashboardLayout';
 import HomePage from './pages/home/HomePage';
 import ProductsPage from './pages/products/ProductsPage';
 import CategoriesPage from './pages/categories/CategoriesPage';
@@ -13,6 +14,14 @@ import VerifyEmailPage from './pages/auth/VerifyEmailPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import GoogleCallbackPage from './pages/auth/GoogleCallbackPage';
+import DashboardOverview from './components/dashboard/DashboardOverview';
+import DashboardProducts from './components/dashboard/DashboardProducts';
+import DashboardOrders from './components/dashboard/DashboardOrders';
+import DashboardQuotes from './components/dashboard/DashboardQuotes';
+import DashboardShipments from './components/dashboard/DashboardShipments';
+import DashboardFavorites from './components/dashboard/DashboardFavorites';
+import DashboardProfile from './components/dashboard/DashboardProfile';
+import DashboardSettings from './components/dashboard/DashboardSettings';
 
 function App() {
   return (
@@ -85,6 +94,7 @@ function App() {
           <Route path="services" element={<ServicesPage />} />
           <Route path="contact" element={<ContactPage />} />
         </Route>
+        
         {/* Auth routes without layout */}
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/register" element={<SignupPage />} />
@@ -93,6 +103,18 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
         <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
+
+        {/* Dashboard routes */}
+        <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route index element={<DashboardOverview />} />
+          <Route path="products" element={<DashboardProducts />} />
+          <Route path="orders" element={<DashboardOrders />} />
+          <Route path="quotes" element={<DashboardQuotes />} />
+          <Route path="shipments" element={<DashboardShipments />} />
+          <Route path="favorites" element={<DashboardFavorites />} />
+          <Route path="profile" element={<DashboardProfile />} />
+          <Route path="settings" element={<DashboardSettings />} />
+        </Route>
       </Routes>
     </>
   );

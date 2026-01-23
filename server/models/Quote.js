@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const quoteSchema = new mongoose.Schema({
   quoteId: {
     type: String,
-    unique: true,
-    required: true
+    unique: true
   },
   customer: {
     type: mongoose.Schema.Types.ObjectId,
