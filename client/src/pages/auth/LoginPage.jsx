@@ -38,6 +38,8 @@ const LoginPage = () => {
         photoURL: result.user.photoURL
       });
 
+      console.log('Google login response:', response.data);
+
       // Store token and user
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -49,7 +51,13 @@ const LoginPage = () => {
       }));
       
       toast.success('Google sign-in successful!');
-      navigate('/');
+      
+      // Redirect based on role
+      if (response.data.user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       console.error('Google sign-in error:', error);
       toast.error(error.response?.data?.message || 'Google sign-in failed');

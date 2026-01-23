@@ -378,38 +378,50 @@ exports.logout = asyncHandler(async (req, res, next) => {
 // @route   POST /api/auth/google
 // @access  Public
 exports.googleLogin = asyncHandler(async (req, res, next) => {
+  console.log('\n🔵 ===== GOOGLE LOGIN ATTEMPT =====');
+  console.log('Request body:', req.body);
+  
   const { idToken, email, name, photoURL } = req.body;
 
   if (!email) {
+    console.log('❌ Email is missing from Google sign-in');
     return next(new ErrorResponse('Email is required from Google sign-in', 400));
   }
+
+  console.log('✅ Email received:', email);
 
   // Check if user exists
   let user = await User.findOne({ email });
 
   if (user) {
+    console.log('👤 Existing user found:', user.email);
     // User exists - login
     if (!user.isActive) {
       user.isActive = true;
       user.isEmailVerified = true;
       await user.save();
+      console.log('✅ User activated and email verified');
     }
     
+    console.log('===== GOOGLE LOGIN SUCCESSFUL =====\n');
     return sendTokenResponse(user, 200, res);
   }
 
+  console.log('✨ Creating new user from Google data');
   // Create new user from Google data
   user = await User.create({
     name: name || email.split('@')[0],
     email,
     password: Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8), // Random password
     role: 'customer',
-    avatar: photoURL ? { url: photoURL } : undefined,
+    avatar: photoURL || '',
     authProvider: 'google',
     isEmailVerified: true,
     isActive: true
   });
 
+  console.log('✅ New user created:', user.email);
+  console.log('===== GOOGLE LOGIN SUCCESSFUL =====\n');
   sendTokenResponse(user, 201, res);
 });
 

@@ -33,8 +33,9 @@ const Header = () => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 shadow-lg border-b border-emerald-400/20 backdrop-blur-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <>
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 shadow-lg border-b border-emerald-400/20 backdrop-blur-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-[60px]">
           
           {/* Logo */}
@@ -83,7 +84,7 @@ const Header = () => {
                   Dashboard
                 </Link>
                 <button
-                  onClick={handleLogout}
+                  onClick={handleLogoutClick}
                   className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:shadow-2xl transform hover:scale-105 transition-all"
                 >
                   Logout
@@ -172,40 +173,41 @@ const Header = () => {
           </div>
         )}
       </div>
+    </nav>
 
-      {/* Logout Confirmation Modal */}
-      {showLogoutModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl animate-scaleIn">
-            <div className="p-6">
-              <div className="flex items-center justify-center mb-4">
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-                  <LogOut className="w-8 h-8 text-red-600" />
-                </div>
+    {/* Logout Confirmation Modal */}
+    {showLogoutModal && (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fadeIn">
+        <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl animate-scaleIn">
+          <div className="p-6">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                <LogOut className="w-8 h-8 text-red-600" />
               </div>
-              <h2 className="text-2xl font-black text-gray-900 text-center mb-2">Confirm Logout</h2>
-              <p className="text-gray-600 text-center mb-6">
-                Are you sure you want to logout? You'll need to sign in again to access your account.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={handleLogoutCancel}
-                  className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-200"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleLogoutConfirm}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg font-semibold transition-all duration-200 shadow-lg shadow-red-200 hover:shadow-xl"
-                >
-                  Logout
-                </button>
-              </div>
+            </div>
+            <h2 className="text-2xl font-black text-gray-900 text-center mb-2">Confirm Logout</h2>
+            <p className="text-gray-600 text-center mb-6">
+              Are you sure you want to logout? You'll need to sign in again to access your account.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={handleLogoutCancel}
+                className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogoutConfirm}
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg font-semibold transition-all duration-200 shadow-lg shadow-red-200 hover:shadow-xl"
+              >
+                Logout
+              </button>
             </div>
           </div>
         </div>
-      )}
-    </nav>
+      </div>
+    )}
+  </>
   );
 };
 
