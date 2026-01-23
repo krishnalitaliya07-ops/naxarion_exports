@@ -22,7 +22,8 @@ function App() {
         reverseOrder={false}
         gutter={8}
         containerStyle={{
-          top: 80,
+          top: 20,
+          zIndex: 9999,
         }}
         toastOptions={{
           duration: 4000,

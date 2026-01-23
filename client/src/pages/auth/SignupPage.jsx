@@ -107,7 +107,7 @@ const SignupPage = () => {
         
         <div className="relative z-10">
           {/* Logo */}
-          <Link to="/" className="inline-flex items-center gap-2 mb-4">
+          <Link to="/" className="inline-flex items-center gap-2 mb-4 animate-[fadeInUp_0.6s_ease-out]">
             <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shadow-lg">
               <Globe className="text-white" size={24} />
             </div>
@@ -118,7 +118,7 @@ const SignupPage = () => {
           </Link>
 
           {/* Main Heading */}
-          <div className="mb-3">
+          <div className="mb-3 animate-[fadeInUp_0.8s_ease-out]">
             <h1 className="text-3xl font-black text-white mb-2 leading-tight">
               Join Us Today
             </h1>
@@ -128,7 +128,7 @@ const SignupPage = () => {
           </div>
 
           {/* Image with User Stats */}
-          <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden mb-3 border border-white/20 shadow-2xl">
+          <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden mb-3 border border-white/20 shadow-2xl animate-[scaleIn_1s_ease-out]">
             <div className="relative h-24 bg-gradient-to-br from-teal-400/30 to-cyan-400/30 flex items-center justify-center">
               <img
                 src="https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=500&h=300&fit=crop&q=80"
@@ -154,7 +154,7 @@ const SignupPage = () => {
           </div>
 
           {/* Feature Grid */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 animate-[fadeInUp_1.2s_ease-out]">
             <div className="bg-white/10 backdrop-blur-md rounded-lg p-2 border border-white/20 hover:bg-white/15 transition-all">
               <Package className="text-white mb-1" size={20} />
               <h3 className="text-white font-bold text-xs mb-0.5">Product Catalog</h3>
@@ -279,7 +279,7 @@ const SignupPage = () => {
                   onChange={handleChange}
                   placeholder="John Doe"
                   required
-                  className="w-full pl-10 pr-4 py-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:border-teal-500 focus:outline-none focus:bg-white transition-all"
+                  className="w-full pl-4 pr-4 py-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:border-teal-500 focus:outline-none focus:bg-white transition-all"
                 />
               </div>
             </div>
@@ -298,7 +298,7 @@ const SignupPage = () => {
                   onChange={handleChange}
                   placeholder="john@example.com"
                   required
-                  className="w-full pl-10 pr-4 py-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:border-teal-500 focus:outline-none focus:bg-white transition-all"
+                  className="w-full pl-4 pr-4 py-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:border-teal-500 focus:outline-none focus:bg-white transition-all"
                 />
               </div>
             </div>
@@ -317,7 +317,7 @@ const SignupPage = () => {
                   onChange={handleChange}
                   placeholder="+1 (555) 000-0000"
                   required
-                  className="w-full pl-10 pr-4 py-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:border-teal-500 focus:outline-none focus:bg-white transition-all"
+                  className="w-full pl-4 pr-4 py-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:border-teal-500 focus:outline-none focus:bg-white transition-all"
                 />
               </div>
             </div>
@@ -337,7 +337,7 @@ const SignupPage = () => {
                   placeholder="Create a strong password"
                   required
                   minLength={8}
-                  className="w-full pl-10 pr-4 py-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:border-teal-500 focus:outline-none focus:bg-white transition-all"
+                  className="w-full pl-4 pr-4 py-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:border-teal-500 focus:outline-none focus:bg-white transition-all"
                 />
               </div>
               <p className="text-[10px] text-gray-500 mt-0.5">Minimum 8 characters</p>

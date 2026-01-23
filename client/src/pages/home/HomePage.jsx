@@ -298,24 +298,24 @@ const HomePage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             
             {[
-              { num: 1, icon: UserPlus, title: 'Sign Up Free', desc: 'Create your account in minutes. No credit card required to get started.', color: 'emerald', delay: 0.1 },
-              { num: 2, icon: Search, title: 'Browse Products', desc: 'Explore 673 active listings from verified suppliers in various categories.', color: 'amber', delay: 0.2 },
-              { num: 3, icon: Handshake, title: 'Connect & Negotiate', desc: 'Request quotes and negotiate directly with verified suppliers.', color: 'cyan', delay: 0.3 },
-              { num: 4, icon: Truck, title: 'Ship Globally', desc: 'Secure payment and worldwide shipping arranged for you.', color: 'purple', delay: 0.4 }
+              { num: 1, icon: UserPlus, title: 'Sign Up Free', desc: 'Create your account in minutes. No credit card required to get started.', color: 'emerald', borderColor: 'border-emerald-500/30 hover:border-emerald-500', bgGradient: 'from-emerald-400 to-emerald-600', iconGradient: 'from-emerald-500 to-emerald-600', delay: 0.1 },
+              { num: 2, icon: Search, title: 'Browse Products', desc: 'Explore 673 active listings from verified suppliers in various categories.', color: 'amber', borderColor: 'border-amber-500/30 hover:border-amber-500', bgGradient: 'from-amber-400 to-amber-600', iconGradient: 'from-amber-500 to-amber-600', delay: 0.2 },
+              { num: 3, icon: Handshake, title: 'Connect & Negotiate', desc: 'Request quotes and negotiate directly with verified suppliers.', color: 'cyan', borderColor: 'border-cyan-500/30 hover:border-cyan-500', bgGradient: 'from-cyan-400 to-cyan-600', iconGradient: 'from-cyan-500 to-cyan-600', delay: 0.3 },
+              { num: 4, icon: Truck, title: 'Ship Globally', desc: 'Secure payment and worldwide shipping arranged for you.', color: 'purple', borderColor: 'border-purple-500/30 hover:border-purple-500', bgGradient: 'from-purple-400 to-purple-600', iconGradient: 'from-purple-500 to-purple-600', delay: 0.4 }
             ].map((step, index) => (
               <AnimatedSection key={index} variants={fadeInUp} delay={step.delay}>
-                <div className="relative">
-                  <div className={`bg-white/10 backdrop-blur-md border-2 border-${step.color}-500/30 hover:border-${step.color}-500 p-8 rounded-[30px] transition-all duration-500 ease-in-out transform hover:-translate-y-2 hover:shadow-2xl group h-full`}>
+                <div className="relative h-full">
+                  <div className={`bg-white/10 backdrop-blur-md border-2 ${step.borderColor} p-8 rounded-[30px] transition-all duration-500 ease-in-out transform hover:-translate-y-2 hover:shadow-2xl group flex flex-col h-full min-h-[280px]`}>
                     {/* Step Number */}
-                    <div className={`absolute -top-5 -right-5 w-14 h-14 bg-gradient-to-br from-${step.color}-400 to-${step.color}-600 rounded-full flex items-center justify-center shadow-xl`}>
+                    <div className={`absolute -top-5 -right-5 w-14 h-14 bg-gradient-to-br ${step.bgGradient} rounded-full flex items-center justify-center shadow-xl`}>
                       <span className="text-2xl font-black text-white">{step.num}</span>
                     </div>
                     
-                    <div className={`w-16 h-16 bg-gradient-to-br from-${step.color}-500 to-${step.color}-600 rounded-3xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
+                    <div className={`w-16 h-16 bg-gradient-to-br ${step.iconGradient} rounded-3xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform flex-shrink-0`}>
                       <step.icon className="text-white" size={32} />
                     </div>
                     <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
-                    <p className="text-slate-300 text-sm leading-relaxed">{step.desc}</p>
+                    <p className="text-slate-300 text-sm leading-relaxed flex-grow">{step.desc}</p>
                   </div>
                 </div>
               </AnimatedSection>

@@ -132,7 +132,7 @@ const LoginPage = () => {
           
           <div className="relative z-10">
             {/* Logo */}
-            <Link to="/" className="inline-flex items-center gap-2 mb-4">
+            <Link to="/" className="inline-flex items-center gap-2 mb-4 animate-[fadeInUp_0.6s_ease-out]">
               <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shadow-lg">
                 <Globe className="text-white" size={24} />
               </div>
@@ -143,7 +143,7 @@ const LoginPage = () => {
             </Link>
 
             {/* Main Heading */}
-            <div className="mb-4">
+            <div className="mb-4 animate-[fadeInUp_0.8s_ease-out]">
               <h1 className="text-3xl font-black text-white mb-2 leading-tight">
                 Welcome Back
               </h1>
@@ -153,7 +153,7 @@ const LoginPage = () => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2 animate-[scaleIn_1s_ease-out]">
               <div className="bg-white/10 backdrop-blur-md rounded-lg p-2.5 border border-white/20">
                 <p className="text-xl font-black text-white mb-0.5">2,847+</p>
                 <p className="text-white/80 text-xs">Active Traders</p>
@@ -173,7 +173,7 @@ const LoginPage = () => {
             </div>
 
             {/* Additional Features */}
-            <div className="mt-4 bg-white/10 backdrop-blur-md rounded-lg p-3 border border-white/20">
+            <div className="mt-3 bg-white/10 backdrop-blur-md rounded-lg p-2.5 border border-white/20 animate-[fadeInUp_1.2s_ease-out]">
               <h3 className="text-white font-bold text-sm mb-2">Why Choose Us?</h3>
               <ul className="space-y-1.5">
                 <li className="flex items-center gap-2 text-white/90 text-xs">
@@ -193,6 +193,33 @@ const LoginPage = () => {
                   <span>Fast & Easy Trading</span>
                 </li>
               </ul>
+            </div>
+
+            {/* Testimonial */}
+            <div className="mt-3 bg-white/10 backdrop-blur-md rounded-lg p-2.5 border border-white/20 animate-[fadeInUp_1.4s_ease-out]">
+              <div className="flex items-start gap-2">
+                <div className="w-7 h-7 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-black text-[10px]">⭐</span>
+                </div>
+                <div>
+                  <p className="text-white/90 text-[10px] italic leading-snug">
+                    "Nexarion transformed our import business. Connected with suppliers from 20+ countries!"
+                  </p>
+                  <p className="text-white/70 text-[9px] mt-1 font-semibold">— Sarah Mitchell</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Success Metrics */}
+            <div className="mt-3 grid grid-cols-2 gap-2 animate-[scaleIn_1.6s_ease-out]">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg p-2 border border-white/20 text-center">
+                <p className="text-white font-black text-base">$2.5M+</p>
+                <p className="text-white/80 text-[9px]">Monthly Trade</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-lg p-2 border border-white/20 text-center">
+                <p className="text-white font-black text-base">98%</p>
+                <p className="text-white/80 text-[9px]">Satisfaction</p>
+              </div>
             </div>
           </div>
 
@@ -271,7 +298,7 @@ const LoginPage = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="your.email@example.com"
-                  className="w-full pl-12 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none transition-colors bg-white/80 backdrop-blur-sm focus:bg-white"
+                  className="w-full pl-4 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none transition-colors bg-white/80 backdrop-blur-sm focus:bg-white"
                   required
                   disabled={loading}
                 />
@@ -291,7 +318,7 @@ const LoginPage = () => {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Enter your password"
-                  className="w-full pl-12 pr-12 py-2 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none transition-colors bg-white/80 backdrop-blur-sm focus:bg-white"
+                  className="w-full pl-4 pr-12 py-2 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none transition-colors bg-white/80 backdrop-blur-sm focus:bg-white"
                   required
                   disabled={loading}
                 />

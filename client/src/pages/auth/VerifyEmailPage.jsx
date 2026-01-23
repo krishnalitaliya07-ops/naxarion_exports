@@ -141,14 +141,14 @@ const VerifyEmailPage = () => {
         {/* Back Button */}
         <Link 
           to="/signup" 
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-teal-600 mb-6 transition-colors"
+          className="inline-flex items-center gap-2 text-gray-700 hover:text-teal-600 mb-6 transition-all group bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl hover:bg-white hover:shadow-md border border-gray-200"
         >
-          <ArrowLeft size={20} />
-          <span>Back to Sign Up</span>
+          <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+          <span className="font-semibold text-sm">Back to Sign Up</span>
         </Link>
 
         {/* Card */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8">
+        <div className="bg-white rounded-3xl shadow-2xl p-8 animate-[fadeInUp_0.6s_ease-out]">
           
           {/* Icon */}
           <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -179,7 +179,7 @@ const VerifyEmailPage = () => {
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
                   onPaste={handlePaste}
-                  className="w-14 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-xl focus:border-teal-500 focus:outline-none transition-colors"
+                  className="w-14 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-xl focus:border-teal-500 focus:ring-4 focus:ring-teal-500/20 focus:outline-none transition-all hover:border-gray-400"
                   disabled={loading}
                 />
               ))}
@@ -189,7 +189,7 @@ const VerifyEmailPage = () => {
             <button
               type="submit"
               disabled={loading || code.some(d => !d)}
-              className="w-full bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-bold py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-teal-500/30 hover:shadow-xl hover:shadow-teal-500/40 mb-6"
+              className="w-full bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-bold py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-teal-500/30 hover:shadow-xl hover:shadow-teal-500/40 mb-6 hover:scale-105 active:scale-95"
             >
               {loading ? (
                 <>
