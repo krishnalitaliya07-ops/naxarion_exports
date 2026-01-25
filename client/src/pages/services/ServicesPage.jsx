@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { 
   ShieldCheck, 
   Lock, 
@@ -15,6 +17,55 @@ import {
   GraduationCap,
   CheckCircle2
 } from 'lucide-react';
+
+// Animation variants
+const fadeInUp = {
+  hidden: { opacity: 0, y: 60 },
+  visible: { opacity: 1, y: 0 }
+};
+
+const slideInLeft = {
+  hidden: { opacity: 0, x: -60 },
+  visible: { opacity: 1, x: 0 }
+};
+
+const slideInRight = {
+  hidden: { opacity: 0, x: 60 },
+  visible: { opacity: 1, x: 0 }
+};
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: { opacity: 1, scale: 1 }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const AnimatedSection = ({ children, variants = fadeInUp, delay = 0, className = "" }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      className={className}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      variants={variants}
+      transition={{ duration: 0.6, delay, ease: "easeOut" }}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 const ServicesPage = () => {
   const mainServices = [
@@ -181,14 +232,14 @@ const ServicesPage = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br mt-[20px] from-slate-800 via-slate-900 to-slate-800 py-16 relative overflow-hidden">
+      <div className="bg-gradient-to-br mt-[20px] from-slate-800 via-slate-900 to-slate-800 py-8 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center animate-fadeInUp">
-            <div className="inline-block bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full px-5 py-2 mb-5">
+          <AnimatedSection variants={scaleIn} className="text-center">
+            <div className="inline-block mt-[20px] bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full px-5 py-2 mb-5">
               <p className="font-bold text-xs uppercase tracking-wide">Our Services</p>
             </div>
             <h1 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
@@ -197,27 +248,33 @@ const ServicesPage = () => {
             <p className="text-base text-slate-300 max-w-3xl mx-auto leading-relaxed">
               Everything you need to succeed in international trade - from supplier verification to logistics management
             </p>
-          </div>
+          </AnimatedSection>
         </div>
       </div>
 
       {/* Main Services Grid */}
-      <div className="py-20 bg-gradient-to-br from-blue-50/50 via-purple-50/30 to-pink-50/40">
+      <div className="py-6 bg-gradient-to-br from-blue-50/50 via-purple-50/30 to-pink-50/40">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
-          <div className="text-center mb-16">
+          <AnimatedSection variants={fadeInUp} className="text-center mb-6">
             <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4">Core Services</h2>
             <p className="text-sm text-slate-600 max-w-2xl mx-auto">Powerful tools designed to streamline your global trading operations</p>
-          </div>
+          </AnimatedSection>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <motion.div 
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-5"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+          >
             {mainServices.map((service, index) => {
               const IconComponent = service.icon;
               return (
-                <div key={index} className="group relative">
+                <motion.div key={index} className="group relative" variants={fadeInUp}>
                   <div className={`absolute -top-3 -left-3 w-24 h-24 bg-gradient-to-br ${service.gradient.replace('via-', 'to-')} rounded-full opacity-20 blur-2xl group-hover:opacity-30 transition-opacity`}></div>
                   
-                  <div className={`relative bg-gradient-to-br ${service.bg} rounded-[30px] p-8 border-2 ${service.border} hover:shadow-2xl hover:-translate-y-2 transition-all`}>
+                  <div className={`relative bg-gradient-to-br ${service.bg} rounded-[30px] p-5 border-2 ${service.border} hover:shadow-2xl hover:-translate-y-2 transition-all`}>
                     <div className={`w-16 h-16 bg-gradient-to-br ${service.gradient} rounded-2xl flex items-center justify-center shadow-xl mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all`}>
                       <IconComponent className="text-white" size={28} />
                     </div>
@@ -238,33 +295,33 @@ const ServicesPage = () => {
                       Learn More →
                     </button>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </div>
 
       {/* Contact Support Section */}
-      <div className="py-16 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
+      <div className="py-6 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative">
+          <AnimatedSection variants={scaleIn} className="relative">
             {/* Decorative circles */}
             <div className="absolute -top-4 -left-4 w-32 h-32 bg-gradient-to-br from-indigo-300 to-purple-300 rounded-full opacity-20 blur-3xl"></div>
             <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-gradient-to-br from-pink-300 to-rose-300 rounded-full opacity-20 blur-3xl"></div>
             
-            <div className="relative bg-gradient-to-br from-white/90 to-indigo-50/60 backdrop-blur-sm rounded-[30px] p-10 border-2 border-indigo-200 shadow-2xl text-center">
+            <div className="relative bg-gradient-to-br from-white/90 to-indigo-50/60 backdrop-blur-sm rounded-[30px] p-6 border-2 border-indigo-200 shadow-2xl text-center">
               <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-xl mx-auto mb-6">
                 <Headphones className="text-white" size={36} />
               </div>
               
               <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4">Need Help Choosing?</h2>
-              <p className="text-sm text-slate-700 leading-relaxed mb-8 max-w-2xl mx-auto">
+              <p className="text-sm text-slate-700 leading-relaxed mb-5 max-w-2xl mx-auto">
                 Our expert team is here to help you find the perfect service package for your business needs. Get personalized recommendations and answers to all your questions.
               </p>
               
               {/* 3 Buttons */}
-              <div className="grid md:grid-cols-3 gap-4 mb-10">
+              <div className="grid md:grid-cols-3 gap-4 mb-6">
                 <button className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-600 text-white px-6 py-4 rounded-xl font-black text-sm hover:shadow-2xl transform hover:scale-105 transition-all flex items-center justify-center gap-2">
                   <Phone size={18} />
                   Contact Support
@@ -282,47 +339,67 @@ const ServicesPage = () => {
               </div>
 
               {/* Contact Info */}
-              <div className="grid md:grid-cols-3 gap-6 pt-8 border-t border-indigo-200">
+              <motion.div 
+                className="grid md:grid-cols-3 gap-4 pt-5 border-t border-indigo-200"
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+              >
                 {contactMethods.map((method, index) => {
                   const IconComponent = method.icon;
                   return (
-                    <div key={index} className={`bg-gradient-to-br ${method.bg} rounded-xl p-5 border-2 ${method.border} hover:shadow-lg transition-all group`}>
+                    <motion.div 
+                      key={index} 
+                      className={`bg-gradient-to-br ${method.bg} rounded-xl p-4 border-2 ${method.border} hover:shadow-lg transition-all group`}
+                      variants={fadeInUp}
+                    >
                       <div className={`w-12 h-12 bg-gradient-to-br ${method.gradient} rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md group-hover:scale-110 transition-transform`}>
                         <IconComponent className="text-white" size={20} />
                       </div>
                       <p className="text-sm font-black text-slate-900 mb-2">{method.title}</p>
                       <p className="text-xs text-slate-700 font-semibold">{method.value}</p>
-                    </div>
+                    </motion.div>
                   );
                 })}
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </AnimatedSection>
         </div>
       </div>
 
       {/* Additional Services Section */}
-      <div className="py-16 bg-gradient-to-r from-slate-50 to-indigo-50/40">
+      <div className="py-6 bg-gradient-to-r from-slate-50 to-indigo-50/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <AnimatedSection variants={fadeInUp} className="text-center mb-6">
             <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4">Additional Services</h2>
             <p className="text-sm text-slate-600 max-w-2xl mx-auto">Supporting services to enhance your trading experience</p>
-          </div>
+          </AnimatedSection>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <motion.div 
+            className="grid md:grid-cols-2 lg:grid-cols-4 gap-4"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+          >
             {additionalServices.map((service, index) => {
               const IconComponent = service.icon;
               return (
-                <div key={index} className={`bg-gradient-to-br ${service.bg} rounded-[20px] p-6 border-2 ${service.border} hover:shadow-lg hover:scale-105 transition-all group text-center`}>
+                <motion.div 
+                  key={index} 
+                  className={`bg-gradient-to-br ${service.bg} rounded-[20px] p-4 border-2 ${service.border} hover:shadow-lg hover:scale-105 transition-all group text-center`}
+                  variants={fadeInUp}
+                >
                   <div className={`w-14 h-14 bg-gradient-to-br ${service.gradient} rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md group-hover:scale-110 transition-transform`}>
                     <IconComponent className="text-white" size={24} />
                   </div>
                   <h3 className="text-base font-black text-slate-900 mb-2">{service.title}</h3>
                   <p className="text-xs text-slate-700 leading-relaxed">{service.description}</p>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

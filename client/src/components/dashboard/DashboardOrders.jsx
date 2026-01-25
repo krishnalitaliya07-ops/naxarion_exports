@@ -34,6 +34,7 @@ const DashboardOrders = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
@@ -128,6 +129,7 @@ const DashboardOrders = () => {
       calculateStats(mockOrders);
     } finally {
       setLoading(false);
+  
     }
   };
 

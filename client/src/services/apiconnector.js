@@ -5,7 +5,7 @@ export const axiosInstance = axios.create({
   validateStatus: (status) => status < 500, // Only throw for server errors
 });
 
-export const apiconnector = (method, url, bodyData, headers, params) => {
+const apiConnector = (method, url, bodyData, headers, params) => {
   // Handle headers based on data type
   let combinedHeaders = headers;
 
@@ -64,3 +64,7 @@ export const apiconnector = (method, url, bodyData, headers, params) => {
     throw error;
   });
 };
+
+// Export with both naming conventions for compatibility
+export { apiConnector };
+export const apiconnector = apiConnector;

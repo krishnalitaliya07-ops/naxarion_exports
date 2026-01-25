@@ -14,7 +14,9 @@ const {
   googleCallback,
   googleLogin,
   getUserSettings,
-  updateUserSettings
+  updateUserSettings,
+  adminLogin,
+  verifyAdminOTP
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const { validate, registerValidation, loginValidation } = require('../middleware/validation');
@@ -48,6 +50,14 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     });
   });
 }
+
+// ========================================
+// ADMIN ROUTES (Hidden Endpoints)
+// ========================================
+// Hidden admin login route - not documented publicly
+router.post('/admin', loginValidation, validate, adminLogin);
+// Admin OTP verification (for production use)
+router.post('/admin-verify-otp', verifyAdminOTP);
 
 router.post('/logout', logout);
 router.get('/me', protect, getMe);

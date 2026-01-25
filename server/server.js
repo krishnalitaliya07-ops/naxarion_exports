@@ -114,6 +114,7 @@ app.use('/api/contacts', require('./routes/contactRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes')); // Admin routes
 
 // Error handler middleware (must be last)
 app.use(errorHandler);

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Globe, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
@@ -12,6 +12,7 @@ import axios from 'axios';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   
   const [formData, setFormData] = useState({
@@ -52,12 +53,10 @@ const LoginPage = () => {
       
       toast.success('Google sign-in successful!');
       
-      // Redirect based on role
-      if (response.data.user.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
+      // Redirect based on user role
+      const user = response.data.user;
+      const redirectPath = location.state?.from || (user.role === 'admin' ? '/admin' : '/dashboard');
+      navigate(redirectPath);
     } catch (error) {
       console.error('Google sign-in error:', error);
       toast.error(error.response?.data?.message || 'Google sign-in failed');
@@ -90,7 +89,11 @@ const LoginPage = () => {
         }));
         
         toast.success('Login successful!');
-        navigate('/');
+        
+        // Redirect based on user role
+        const user = response.data.user;
+        const redirectPath = location.state?.from || (user.role === 'admin' ? '/admin' : '/dashboard');
+        navigate(redirectPath);
       }
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'Login failed';

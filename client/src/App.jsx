@@ -2,6 +2,11 @@ import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Layout from './components/layout/Layout';
 import DashboardLayout from './components/dashboard/DashboardLayout';
+import AdminDashboardLayout from './components/dashboard/AdminDashboardLayout';
+import SplashScreen from './components/SplashScreen';
+import ScrollToTop from './components/ScrollToTop';
+import SessionTimeout from './components/SessionTimeout';
+import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/home/HomePage';
 import ProductsPage from './pages/products/ProductsPage';
 import CategoriesPage from './pages/categories/CategoriesPage';
@@ -10,6 +15,7 @@ import ServicesPage from './pages/services/ServicesPage';
 import ContactPage from './pages/contact/ContactPage';
 import SignupPage from './pages/auth/SignupPage';
 import LoginPage from './pages/auth/LoginPage';
+import AdminLogin from './pages/auth/AdminLogin';
 import VerifyEmailPage from './pages/auth/VerifyEmailPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
@@ -22,10 +28,13 @@ import DashboardShipments from './components/dashboard/DashboardShipments';
 import DashboardFavorites from './components/dashboard/DashboardFavorites';
 import DashboardProfile from './components/dashboard/DashboardProfile';
 import DashboardSettings from './components/dashboard/DashboardSettings';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 function App() {
   return (
     <>
+      <SplashScreen />
+      <SessionTimeout />
       <Toaster
         position="top-center"
         reverseOrder={false}
@@ -85,6 +94,7 @@ function App() {
           },
         }}
       />
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
@@ -104,8 +114,15 @@ function App() {
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
         <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
 
+        {/* Admin Login Route */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+
         {/* Dashboard routes */}
-        <Route path="/dashboard" element={<DashboardLayout />}>
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }>
           <Route index element={<DashboardOverview />} />
           <Route path="products" element={<DashboardProducts />} />
           <Route path="orders" element={<DashboardOrders />} />
@@ -114,6 +131,16 @@ function App() {
           <Route path="favorites" element={<DashboardFavorites />} />
           <Route path="profile" element={<DashboardProfile />} />
           <Route path="settings" element={<DashboardSettings />} />
+        </Route>
+
+        {/* Admin Dashboard routes */}
+        <Route path="/admin" element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminDashboardLayout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<AdminDashboard />} />
+          {/* Add more admin routes as needed */}
         </Route>
       </Routes>
     </>

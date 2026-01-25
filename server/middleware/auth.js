@@ -87,3 +87,34 @@ exports.optionalAuth = asyncHandler(async (req, res, next) => {
 
   next();
 });
+
+// Admin only middleware - requires admin role
+exports.requireAdmin = asyncHandler(async (req, res, next) => {
+  // First protect the route
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required. Please login as admin.'
+    });
+  }
+
+  // Check if user is admin
+  if (req.user.role !== 'admin') {
+    console.log(`⚠️  Unauthorized admin access attempt by: ${req.user.email} (Role: ${req.user.role})`);
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Admin privileges required.'
+    });
+  }
+
+  // Check if admin account is active
+  if (!req.user.isActive) {
+    return res.status(403).json({
+      success: false,
+      message: 'Your admin account has been deactivated.'
+    });
+  }
+
+  console.log(`✅ Admin access granted: ${req.user.email}`);
+  next();
+});

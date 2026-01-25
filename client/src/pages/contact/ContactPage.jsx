@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
+import { motion, useInView } from 'framer-motion';
 import { 
   Mail, 
   Phone, 
@@ -20,6 +21,56 @@ import {
   Linkedin
 } from 'lucide-react';
 import { submitContact } from '../../services/operations/contactAPI';
+
+// Animation variants
+const fadeInUp = {
+  hidden: { opacity: 0, y: 60 },
+  visible: { opacity: 1, y: 0 }
+};
+
+const slideInLeft = {
+  hidden: { opacity: 0, x: -60 },
+  visible: { opacity: 1, x: 0 }
+};
+
+const slideInRight = {
+  hidden: { opacity: 0, x: 60 },
+  visible: { opacity: 1, x: 0 }
+};
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: { opacity: 1, scale: 1 }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+// Reusable animated section wrapper
+const AnimatedSection = ({ children, variants = fadeInUp, delay = 0, className = "" }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      className={className}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      variants={variants}
+      transition={{ duration: 0.6, delay, ease: "easeOut" }}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 const ContactPage = () => {
   const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm();
@@ -60,17 +111,6 @@ const ContactPage = () => {
       action: '+1 (800) 123-4567',
       actionType: 'tel',
       textColor: 'text-emerald-600'
-    },
-    {
-      title: 'Live Chat',
-      description: 'Get instant answers from our support team, available 24/7',
-      icon: MessageSquare,
-      gradient: 'from-cyan-500 to-blue-600',
-      bg: 'from-cyan-50 to-blue-100/60',
-      border: 'border-cyan-200 hover:border-cyan-400',
-      action: 'Start Chat',
-      actionType: 'button',
-      buttonGradient: 'from-cyan-500 to-blue-600'
     },
     {
       title: 'Book a Meeting',
@@ -149,61 +189,82 @@ const ContactPage = () => {
     }
   ];
 
+  const heroRef = useRef(null);
+  const isHeroInView = useInView(heroRef, { once: true });
+
+  const contactMethodsRef = useRef(null);
+  const isContactMethodsInView = useInView(contactMethodsRef, { once: true, margin: "-100px" });
+
+  const faqRef = useRef(null);
+  const isFaqInView = useInView(faqRef, { once: true, margin: "-100px" });
+
+  const socialRef = useRef(null);
+  const isSocialInView = useInView(socialRef, { once: true, margin: "-100px" });
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 py-20 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 py-10 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center animate-fadeInUp">
-            <div className="inline-block bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full px-6 py-2 mb-6">
+          <motion.div 
+            ref={heroRef}
+            className="text-center"
+            initial="hidden"
+            animate={isHeroInView ? "visible" : "hidden"}
+            variants={staggerContainer}
+          >
+            <motion.div 
+              className="inline-block mt-[30px] bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full px-6 py-2 mb-6"
+              variants={scaleIn}
+            >
               <p className="font-bold text-xs uppercase tracking-wide">Get In Touch</p>
-            </div>
-            <h1 className="text-5xl md:text-6xl font-black text-white mb-5 leading-tight">
+            </motion.div>
+            <motion.h1 
+              className="text-4xl md:text-5xl font-black text-white mb-3 leading-tight"
+              variants={fadeInUp}
+            >
               Let's Start a <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">Conversation</span>
-            </h1>
-            <p className="text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed mb-8">
+            </motion.h1>
+            <motion.p 
+              className="text-base text-slate-300 max-w-3xl mx-auto leading-relaxed mb-5"
+              variants={fadeInUp}
+            >
               We're here to help you succeed. Whether you have questions, need support, or want to explore partnership opportunities, our team is ready to assist you 24/7.
-            </p>
-            
-            {/* Quick Stats */}
-            <div className="flex flex-wrap justify-center gap-8 mt-8">
-              <div className="text-center">
-                <p className="text-3xl font-black text-white mb-1">{'< 2 Hours'}</p>
-                <p className="text-sm text-slate-400">Average Response</p>
-              </div>
-              <div className="text-center">
-                <p className="text-3xl font-black text-white mb-1">24/7</p>
-                <p className="text-sm text-slate-400">Live Chat Support</p>
-              </div>
-              <div className="text-center">
-                <p className="text-3xl font-black text-white mb-1">98%</p>
-                <p className="text-sm text-slate-400">Satisfaction Rate</p>
-              </div>
-            </div>
-          </div>
+            </motion.p>
+          </motion.div>
         </div>
       </div>
 
       {/* Quick Contact Methods */}
-      <div className="py-16 bg-gradient-to-br from-blue-50/50 via-purple-50/30 to-pink-50/40">
+      <div className="py-6 bg-gradient-to-br from-blue-50/50 via-purple-50/30 to-pink-50/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
+          <AnimatedSection className="text-center mb-6">
             <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-3">Choose Your Preferred Contact Method</h2>
             <p className="text-sm text-slate-600">We're available through multiple channels for your convenience</p>
-          </div>
+          </AnimatedSection>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <motion.div 
+            ref={contactMethodsRef}
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+            initial="hidden"
+            animate={isContactMethodsInView ? "visible" : "hidden"}
+            variants={staggerContainer}
+          >
             {contactMethods.map((method, index) => {
               const IconComponent = method.icon;
               return (
-                <div key={index} className="group relative">
+                <motion.div 
+                  key={index} 
+                  className="group relative"
+                  variants={fadeInUp}
+                >
                   <div className={`absolute -top-3 -left-3 w-20 h-20 bg-gradient-to-br ${method.gradient.replace('to-', 'from-')} rounded-full opacity-20 blur-2xl group-hover:opacity-30 transition-opacity`}></div>
                   
-                  <div className={`relative bg-gradient-to-br ${method.bg} rounded-[25px] p-6 border-2 ${method.border} hover:shadow-2xl hover:-translate-y-2 transition-all text-center h-full`}>
+                  <div className={`relative bg-gradient-to-br ${method.bg} rounded-[25px] p-5 border-2 ${method.border} hover:shadow-2xl hover:-translate-y-2 transition-all text-center h-full`}>
                     <div className={`w-16 h-16 bg-gradient-to-br ${method.gradient} rounded-2xl flex items-center justify-center shadow-xl mx-auto mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all`}>
                       <IconComponent className="text-white" size={28} />
                     </div>
@@ -219,29 +280,29 @@ const ContactPage = () => {
                       </button>
                     )}
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </div>
 
       {/* Main Contact Form & Info Section */}
-      <div className="py-20 bg-gradient-to-r from-slate-50 to-indigo-50/40">
+      <div className="py-8 bg-gradient-to-br from-slate-50/80 via-indigo-50/40 to-purple-50/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-5 gap-12">
+          <div className="grid lg:grid-cols-5 gap-6">
             
             {/* Left Side - Contact Form */}
-            <div className="lg:col-span-3 relative">
+            <AnimatedSection variants={slideInLeft} className="lg:col-span-3 relative">
               <div className="absolute -top-6 -left-6 w-40 h-40 bg-gradient-to-br from-indigo-300 to-purple-300 rounded-full opacity-20 blur-3xl"></div>
               
-              <div className="relative bg-gradient-to-br from-white/95 to-indigo-50/70 backdrop-blur-sm rounded-[30px] p-10 border-2 border-indigo-200 shadow-2xl">
-                <div className="mb-8">
+              <div className="relative bg-gradient-to-br from-white/95 to-indigo-50/70 backdrop-blur-sm rounded-[30px] p-6 border-2 border-indigo-200 shadow-2xl">
+                <div className="mb-5">
                   <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-3">Send Us a Message</h2>
                   <p className="text-sm text-slate-600">Fill out the form and we'll respond within 24 hours. Fields marked with * are required.</p>
                 </div>
                 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                   {/* Name & Company Row */}
                   <div className="grid md:grid-cols-2 gap-5">
                     <div>
@@ -374,17 +435,17 @@ const ContactPage = () => {
                   <p className="text-xs text-center text-slate-500 mt-3">📧 You'll receive a confirmation email and we'll respond within 2-4 hours</p>
                 </form>
               </div>
-            </div>
+            </AnimatedSection>
 
             {/* Right Side - Additional Info */}
-            <div className="lg:col-span-2 space-y-6">
+            <AnimatedSection variants={slideInRight} className="lg:col-span-2 space-y-4">
               
               {/* Office Locations */}
               <div className="relative">
                 <div className="absolute -top-3 -left-3 w-24 h-24 bg-gradient-to-br from-purple-300 to-pink-300 rounded-full opacity-20 blur-2xl"></div>
                 
-                <div className="relative bg-gradient-to-br from-purple-50 to-pink-100/60 rounded-[25px] p-6 border-2 border-purple-200 shadow-lg">
-                  <div className="flex items-start gap-4 mb-5">
+                <div className="relative bg-gradient-to-br from-purple-50 to-pink-100/60 rounded-[25px] p-5 border-2 border-purple-200 shadow-lg">
+                  <div className="flex items-start gap-4 mb-4">
                     <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
                       <Globe className="text-white" size={24} />
                     </div>
@@ -394,7 +455,7 @@ const ContactPage = () => {
                     </div>
                   </div>
                   
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {offices.map((office, index) => (
                       <div key={index} className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-purple-200">
                         <p className="text-sm font-black text-slate-900 mb-2">{office.flag} {office.name}</p>
@@ -409,8 +470,8 @@ const ContactPage = () => {
               <div className="relative">
                 <div className="absolute -top-3 -left-3 w-24 h-24 bg-gradient-to-br from-cyan-300 to-blue-300 rounded-full opacity-20 blur-2xl"></div>
                 
-                <div className="relative bg-gradient-to-br from-cyan-50 to-blue-100/60 rounded-[25px] p-6 border-2 border-cyan-200 shadow-lg">
-                  <div className="flex items-start gap-4 mb-5">
+                <div className="relative bg-gradient-to-br from-cyan-50 to-blue-100/60 rounded-[25px] p-5 border-2 border-cyan-200 shadow-lg">
+                  <div className="flex items-start gap-4 mb-4">
                     <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
                       <Clock className="text-white" size={24} />
                     </div>
@@ -427,60 +488,35 @@ const ContactPage = () => {
                         <span className="font-bold text-slate-900">{schedule.hours}</span>
                       </div>
                     ))}
-                    <div className="bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg p-3 text-center">
-                      <p className="text-sm text-white font-bold">💬 Live Chat: Available 24/7</p>
-                    </div>
                   </div>
                 </div>
               </div>
-
-              {/* Social Media */}
-              <div className="relative">
-                <div className="absolute -top-3 -left-3 w-24 h-24 bg-gradient-to-br from-amber-300 to-orange-300 rounded-full opacity-20 blur-2xl"></div>
-                
-                <div className="relative bg-gradient-to-br from-amber-50 to-orange-100/60 rounded-[25px] p-6 border-2 border-amber-200 shadow-lg">
-                  <div className="flex items-start gap-4 mb-5">
-                    <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
-                      <Share2 className="text-white" size={24} />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-black text-slate-900 mb-1">Connect With Us</h3>
-                      <p className="text-xs text-slate-600">Follow on social media</p>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    {socialMedia.map((social, index) => {
-                      const IconComponent = social.icon;
-                      return (
-                        <a key={index} href="#" className={`bg-gradient-to-br ${social.gradient} ${social.hoverColor} rounded-xl p-4 flex items-center gap-3 shadow-md hover:shadow-xl hover:scale-105 transition-all group`}>
-                          <IconComponent className="text-white" size={24} />
-                          <div className="text-left">
-                            <p className="text-xs font-bold text-white">{social.name}</p>
-                            <p className="text-xs text-white/90">{social.followers}</p>
-                          </div>
-                        </a>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
+            </AnimatedSection>
           </div>
         </div>
       </div>
 
       {/* FAQ Section */}
-      <div className="py-16 bg-gradient-to-br from-blue-50/50 via-purple-50/30 to-pink-50/40">
+      <div className="py-6 bg-gradient-to-br from-blue-50/50 via-purple-50/30 to-pink-50/40">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <AnimatedSection className="text-center mb-6">
             <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4">Frequently Asked Questions</h2>
             <p className="text-sm text-slate-600">Quick answers to common questions about contacting us</p>
-          </div>
+          </AnimatedSection>
 
-          <div className="grid md:grid-cols-2 gap-5">
+          <motion.div 
+            ref={faqRef}
+            className="grid md:grid-cols-2 gap-4"
+            initial="hidden"
+            animate={isFaqInView ? "visible" : "hidden"}
+            variants={staggerContainer}
+          >
             {faqs.map((faq, index) => (
-              <div key={index} className={`bg-gradient-to-br ${faq.bg} backdrop-blur-sm rounded-[20px] p-6 border-2 ${faq.border} hover:shadow-xl hover:-translate-y-1 transition-all`}>
+              <motion.div 
+                key={index} 
+                className={`bg-gradient-to-br ${faq.bg} backdrop-blur-sm rounded-[20px] p-5 border-2 ${faq.border} hover:shadow-xl hover:-translate-y-1 transition-all`}
+                variants={fadeInUp}
+              >
                 <div className="flex items-start gap-4">
                   <div className={`w-10 h-10 bg-gradient-to-br ${faq.gradient} rounded-lg flex items-center justify-center flex-shrink-0 shadow-md`}>
                     <HelpCircle className="text-white" size={18} />
@@ -490,9 +526,52 @@ const ContactPage = () => {
                     <p className="text-xs text-slate-700 leading-relaxed">{faq.answer}</p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Connect With Us - Full Width */}
+      <div className="py-6 bg-gradient-to-br from-amber-50/80 via-orange-50/60 to-yellow-50/40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <AnimatedSection className="text-center mb-6">
+            <div className="inline-flex items-center gap-4 mb-3">
+              <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-xl">
+                <Share2 className="text-white" size={28} />
+              </div>
+              <div className="text-left">
+                <h2 className="text-3xl md:text-4xl font-black text-slate-900">Connect With Us</h2>
+                <p className="text-sm text-slate-600">Follow on social media</p>
+              </div>
+            </div>
+          </AnimatedSection>
+
+          <motion.div 
+            ref={socialRef}
+            className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto"
+            initial="hidden"
+            animate={isSocialInView ? "visible" : "hidden"}
+            variants={staggerContainer}
+          >
+            {socialMedia.map((social, index) => {
+              const IconComponent = social.icon;
+              return (
+                <motion.a 
+                  key={index} 
+                  href="#" 
+                  className={`bg-gradient-to-br ${social.gradient} ${social.hoverColor} rounded-2xl p-6 flex flex-col items-center justify-center gap-3 shadow-xl hover:shadow-2xl hover:scale-105 transition-all group text-center`}
+                  variants={scaleIn}
+                >
+                  <IconComponent className="text-white" size={32} />
+                  <div>
+                    <p className="text-base font-bold text-white">{social.name}</p>
+                    <p className="text-sm text-white/90">{social.followers}</p>
+                  </div>
+                </motion.a>
+              );
+            })}
+          </motion.div>
         </div>
       </div>
     </div>

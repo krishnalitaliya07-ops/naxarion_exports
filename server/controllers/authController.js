@@ -521,3 +521,112 @@ exports.updateUserSettings = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc    Admin Login (Hidden Route - Enhanced Security)
+// @route   POST /api/auth/admin-secure-portal-2026
+// @access  Public
+exports.adminLogin = asyncHandler(async (req, res, next) => {
+  console.log('\n🔐 ===== ADMIN LOGIN ATTEMPT =====');
+  const { email, password } = req.body;
+  console.log('Admin login attempt for:', email);
+
+  // Validate inputs
+  if (!email || !password) {
+    console.log('❌ Missing credentials');
+    return next(new ErrorResponse('Please provide email and password', 400));
+  }
+
+  // Check if user exists
+  const user = await User.findOne({ email }).select('+password');
+  if (!user) {
+    console.log('❌ User not found');
+    return next(new ErrorResponse('Invalid admin credentials', 401));
+  }
+
+  // Check if user is admin
+  if (user.role !== 'admin') {
+    console.log('❌ User is not admin. Role:', user.role);
+    return next(new ErrorResponse('Unauthorized access. Admin privileges required.', 403));
+  }
+
+  // Check if password matches
+  const isMatch = await user.comparePassword(password);
+  if (!isMatch) {
+    console.log('❌ Password mismatch');
+    return next(new ErrorResponse('Invalid admin credentials', 401));
+  }
+
+  // Check if user is active
+  if (!user.isActive) {
+    console.log('❌ Admin account deactivated');
+    return next(new ErrorResponse('Your admin account has been deactivated. Please contact support.', 403));
+  }
+
+  // ========================================
+  // TODO: OTP VERIFICATION (FOR PRODUCTION)
+  // ========================================
+  // Uncomment below code when ready for production:
+  /*
+  // Generate OTP
+  const otp = user.generateVerificationCode();
+  await user.save();
+
+  // Send OTP email
+  try {
+    await sendAdminOTPEmail(email, user.name, otp);
+    console.log('📧 OTP sent to admin email');
+    
+    return res.status(200).json({
+      success: true,
+      requiresOTP: true,
+      message: 'OTP sent to your email. Please verify to continue.',
+      tempToken: jwt.sign({ id: user._id, otpVerification: true }, process.env.JWT_SECRET, { expiresIn: '10m' })
+    });
+  } catch (error) {
+    console.log('❌ OTP email failed:', error.message);
+    return next(new ErrorResponse('Unable to send OTP. Please try again.', 500));
+  }
+  */
+  // ========================================
+
+  // FOR DEVELOPMENT: Skip OTP and login directly
+  console.log('✅ Admin login successful (DEV MODE - OTP SKIPPED)');
+  console.log('Admin:', user.name, '| Email:', user.email);
+  console.log('===== ADMIN LOGIN COMPLETED =====\n');
+
+  sendTokenResponse(user, 200, res);
+});
+
+// @desc    Verify Admin OTP (For Production Use)
+// @route   POST /api/auth/admin-verify-otp
+// @access  Public
+exports.verifyAdminOTP = asyncHandler(async (req, res, next) => {
+  console.log('\n🔑 ===== ADMIN OTP VERIFICATION =====');
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    return next(new ErrorResponse('Please provide email and OTP', 400));
+  }
+
+  const user = await User.findOne({ 
+    email,
+    role: 'admin',
+    verificationCode: otp,
+    verificationCodeExpire: { $gt: Date.now() }
+  });
+
+  if (!user) {
+    console.log('❌ Invalid or expired OTP');
+    return next(new ErrorResponse('Invalid or expired OTP', 400));
+  }
+
+  // Clear OTP
+  user.verificationCode = undefined;
+  user.verificationCodeExpire = undefined;
+  await user.save();
+
+  console.log('✅ OTP verified successfully');
+  console.log('===== ADMIN OTP VERIFICATION COMPLETED =====\n');
+
+  sendTokenResponse(user, 200, res);
+});
+

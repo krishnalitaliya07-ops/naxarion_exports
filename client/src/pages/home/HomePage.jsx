@@ -1,8 +1,12 @@
-import { Link } from 'react-router-dom';
-import { Search, FileText, Box, Shield, Truck, CheckCircle, Globe, Lock, Headphones, UserPlus, Handshake, Phone, Rocket, Zap } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Search, FileText, Box, Shield, Truck, CheckCircle, Globe, Lock, Headphones, UserPlus, Handshake, Phone, Rocket, Zap, Plus, X, Loader2, Send } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
+import toast from 'react-hot-toast';
+import { apiconnector } from '../../services/apiconnector';
+import { quoteEndpoints } from '../../services/apis';
 
 // Animation variants
 const fadeInUp = {
@@ -45,6 +49,26 @@ const AnimatedSection = ({ children, variants = fadeInUp, delay = 0, className =
 };
 
 const HomePage = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated, token } = useSelector((state) => state.auth);
+  const [showQuoteModal, setShowQuoteModal] = useState(false);
+
+  const handleRequestQuote = () => {
+    if (isAuthenticated) {
+      setShowQuoteModal(true);
+    } else {
+      navigate('/login', { state: { from: '/dashboard/quotes' } });
+    }
+  };
+
+  const handleStartJourney = () => {
+    if (isAuthenticated) {
+      navigate('/products');
+    } else {
+      navigate('/signup');
+    }
+  };
+
   return (
     <div className="min-h-screen">
       
@@ -125,13 +149,13 @@ const HomePage = () => {
                   <Search size={18} />
                   Explore Products
                 </Link>
-                <Link
-                  to="/contact"
+                <button
+                  onClick={handleRequestQuote}
                   className="bg-white/10 backdrop-blur-md border-2 border-white/30 px-8 py-3.5 rounded-xl font-semibold text-sm hover:bg-white/20 transition-all flex items-center gap-2"
                 >
                   <FileText size={18} />
                   Request Quote
-                </Link>
+                </button>
               </motion.div>
 
               {/* Stats */}
@@ -142,31 +166,43 @@ const HomePage = () => {
                 transition={{ duration: 0.5, delay: 1 }}
               >
                 <motion.div 
-                  className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-sm border-2 border-amber-400/30 rounded-2xl p-4 text-center shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/30 hover:border-amber-400/50 transition-all duration-300"
+                  className="relative group bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-sm border-2 border-amber-400/30 rounded-2xl p-4 text-center shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/30 hover:border-amber-400/50 transition-all duration-300"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5, delay: 1.1 }}
+                  whileHover={{ scale: 1.03, y: -3 }}
                 >
-                  <p className="text-3xl lg:text-4xl font-black text-amber-400 mb-1 drop-shadow-lg">2.8K+</p>
-                  <p className="text-[10px] text-amber-100 font-bold uppercase tracking-wider leading-tight">Registered Users</p>
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/30 to-orange-500/30 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="relative">
+                    <p className="text-3xl lg:text-4xl font-black bg-gradient-to-r from-amber-300 to-orange-400 bg-clip-text text-transparent mb-1 drop-shadow-lg">2.8K+</p>
+                    <p className="text-[10px] text-amber-100 font-bold uppercase tracking-wider leading-tight">Registered Users</p>
+                  </div>
                 </motion.div>
                 <motion.div 
-                  className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 backdrop-blur-sm border-2 border-emerald-400/30 rounded-2xl p-4 text-center shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/30 hover:border-emerald-400/50 transition-all duration-300"
+                  className="relative group bg-gradient-to-br from-emerald-500/20 to-teal-500/20 backdrop-blur-sm border-2 border-emerald-400/30 rounded-2xl p-4 text-center shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/30 hover:border-emerald-400/50 transition-all duration-300"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5, delay: 1.2 }}
+                  whileHover={{ scale: 1.03, y: -3 }}
                 >
-                  <p className="text-3xl lg:text-4xl font-black text-emerald-400 mb-1 drop-shadow-lg">47</p>
-                  <p className="text-[10px] text-emerald-100 font-bold uppercase tracking-wider leading-tight">Countries</p>
+                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/30 to-teal-500/30 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="relative">
+                    <p className="text-3xl lg:text-4xl font-black bg-gradient-to-r from-emerald-300 to-teal-400 bg-clip-text text-transparent mb-1 drop-shadow-lg">47</p>
+                    <p className="text-[10px] text-emerald-100 font-bold uppercase tracking-wider leading-tight">Countries</p>
+                  </div>
                 </motion.div>
                 <motion.div 
-                  className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 backdrop-blur-sm border-2 border-cyan-400/30 rounded-2xl p-4 text-center shadow-lg shadow-cyan-500/20 hover:shadow-xl hover:shadow-cyan-500/30 hover:border-cyan-400/50 transition-all duration-300"
+                  className="relative group bg-gradient-to-br from-cyan-500/20 to-blue-500/20 backdrop-blur-sm border-2 border-cyan-400/30 rounded-2xl p-4 text-center shadow-lg shadow-cyan-500/20 hover:shadow-xl hover:shadow-cyan-500/30 hover:border-cyan-400/50 transition-all duration-300"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5, delay: 1.3 }}
+                  whileHover={{ scale: 1.03, y: -3 }}
                 >
-                  <p className="text-3xl lg:text-4xl font-black text-cyan-400 mb-1 drop-shadow-lg">$12.6M</p>
-                  <p className="text-[10px] text-cyan-100 font-bold uppercase tracking-wider leading-tight">Est. Trade Value</p>
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/30 to-blue-500/30 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="relative">
+                    <p className="text-3xl lg:text-4xl font-black bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent mb-1 drop-shadow-lg">$12.6M</p>
+                    <p className="text-[10px] text-cyan-100 font-bold uppercase tracking-wider leading-tight">Est. Trade Value</p>
+                  </div>
                 </motion.div>
               </motion.div>
             </AnimatedSection>
@@ -184,30 +220,57 @@ const HomePage = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent"></div>
                   
                   {/* Floating Stats Card */}
-                  <div className="absolute bottom-6 left-6 right-6 bg-white/10 backdrop-blur-md border-2 border-white/25 rounded-[25px] p-5 shadow-2xl">
+                  <motion.div 
+                    className="absolute bottom-6 left-6 right-6 bg-gradient-to-br from-white/15 via-white/10 to-white/5 backdrop-blur-xl border-2 border-white/30 rounded-[25px] p-5 shadow-2xl"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.8 }}
+                  >
                     <div className="grid grid-cols-3 gap-3 text-center">
-                      <div>
-                        <p className="text-2xl font-black text-amber-400">673</p>
-                        <p className="text-[10px] text-white font-semibold">Active Listings</p>
-                      </div>
-                      <div>
-                        <p className="text-2xl font-black text-emerald-400">189</p>
-                        <p className="text-[10px] text-white font-semibold">Suppliers</p>
-                      </div>
-                      <div>
-                        <p className="text-2xl font-black text-cyan-400">98.4%</p>
-                        <p className="text-[10px] text-white font-semibold">Success Rate</p>
-                      </div>
+                      <motion.div 
+                        className="relative group"
+                        whileHover={{ scale: 1.03 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-xl blur-lg group-hover:blur-xl transition-all opacity-0 group-hover:opacity-100"></div>
+                        <div className="relative bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-400/30 rounded-xl p-3 group-hover:border-amber-400/60 transition-all">
+                          <p className="text-2xl font-black bg-gradient-to-r from-amber-300 to-orange-400 bg-clip-text text-transparent">673</p>
+                          <p className="text-[10px] text-white font-semibold">Active Listings</p>
+                        </div>
+                      </motion.div>
+                      <motion.div 
+                        className="relative group"
+                        whileHover={{ scale: 1.03 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-xl blur-lg group-hover:blur-xl transition-all opacity-0 group-hover:opacity-100"></div>
+                        <div className="relative bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-400/30 rounded-xl p-3 group-hover:border-emerald-400/60 transition-all">
+                          <p className="text-2xl font-black bg-gradient-to-r from-emerald-300 to-teal-400 bg-clip-text text-transparent">189</p>
+                          <p className="text-[10px] text-white font-semibold">Suppliers</p>
+                        </div>
+                      </motion.div>
+                      <motion.div 
+                        className="relative group"
+                        whileHover={{ scale: 1.03 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl blur-lg group-hover:blur-xl transition-all opacity-0 group-hover:opacity-100"></div>
+                        <div className="relative bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-400/30 rounded-xl p-3 group-hover:border-cyan-400/60 transition-all">
+                          <p className="text-2xl font-black bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent">98.4%</p>
+                          <p className="text-[10px] text-white font-semibold">Success Rate</p>
+                        </div>
+                      </motion.div>
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
 
                 {/* Small Feature Cards */}
-                <div className="grid grid-cols-3 gap-3 mt-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
                   {[
                     { icon: CheckCircle, title: 'ISO Certified', subtitle: 'Quality Assured', gradient: 'from-amber-400 to-amber-600' },
                     { icon: Lock, title: 'Secure Payments', subtitle: '100% Protected', gradient: 'from-emerald-400 to-emerald-600' },
-                    { icon: Zap, title: 'Faster Delivery', subtitle: 'Express Shipping', gradient: 'from-cyan-400 to-blue-600' }
+                    { icon: Zap, title: 'Faster Delivery', subtitle: 'Express Shipping', gradient: 'from-cyan-400 to-blue-600' },
+                    { icon: Headphones, title: '24/7 Support', subtitle: 'Always Available', gradient: 'from-purple-400 to-pink-600' }
                   ].map((card, index) => (
                     <motion.div
                       key={index}
@@ -325,13 +388,13 @@ const HomePage = () => {
 
           {/* CTA Button */}
           <AnimatedSection className="text-center mt-12" delay={0.5}>
-            <Link
-              to="/signup"
+            <button
+              onClick={handleStartJourney}
               className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-10 py-4 rounded-xl font-bold text-base hover:from-emerald-600 hover:to-teal-700 transition-all shadow-2xl transform hover:scale-105 inline-flex items-center gap-2"
             >
               <Rocket size={20} />
               Start Your Journey Today
-            </Link>
+            </button>
           </AnimatedSection>
         </div>
       </div>
@@ -422,6 +485,278 @@ const HomePage = () => {
         </div>
       </div>
 
+      {/* Quote Request Modal */}
+      {showQuoteModal && (
+        <QuoteRequestModal
+          onClose={() => setShowQuoteModal(false)}
+          onSuccess={() => {
+            setShowQuoteModal(false);
+            navigate('/dashboard/quotes');
+          }}
+          token={token}
+        />
+      )}
+
+    </div>
+  );
+};
+
+// Quote Request Modal Component
+const QuoteRequestModal = ({ onClose, onSuccess, token }) => {
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    productName: '',
+    category: '',
+    quantity: '',
+    unit: 'pieces',
+    description: '',
+    specifications: '',
+    targetPrice: '',
+    urgency: 'Medium',
+    expectedDeliveryDate: '',
+    deliveryCity: '',
+    deliveryCountry: ''
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const quoteData = {
+        productName: formData.productName,
+        category: formData.category,
+        quantity: parseInt(formData.quantity),
+        unit: formData.unit,
+        description: formData.description,
+        specifications: formData.specifications,
+        targetPrice: formData.targetPrice ? parseFloat(formData.targetPrice) : undefined,
+        urgency: formData.urgency,
+        expectedDeliveryDate: formData.expectedDeliveryDate || undefined,
+        deliveryLocation: {
+          city: formData.deliveryCity || '',
+          country: formData.deliveryCountry
+        }
+      };
+
+      const response = await apiconnector(
+        'POST',
+        quoteEndpoints.CREATE_QUOTE_API,
+        quoteData,
+        {
+          Authorization: `Bearer ${token}`,
+        }
+      );
+
+      if (response.data.success) {
+        toast.success('Quote request created successfully!');
+        onSuccess();
+      }
+    } catch (error) {
+      console.error('Error creating quote:', error);
+      toast.error(error.response?.data?.message || 'Failed to create quote request');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden animate-scaleIn transform transition-all duration-300">
+        <div className="bg-gradient-to-r from-teal-600 to-cyan-600 p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Plus className="w-8 h-8" />
+              <div>
+                <h2 className="text-2xl font-black">Request a Quote</h2>
+                <p className="text-teal-100 text-sm">Fill in the details to request a quote</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white/20 rounded-lg transition-colors duration-200"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto max-h-[calc(90vh-180px)] scrollbar-hide">
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Product Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.productName}
+                  onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 hover:border-teal-400"
+                  placeholder="Enter product name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Category *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  placeholder="e.g., Electronics"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Quantity *
+                </label>
+                <input
+                  type="number"
+                  required
+                  min="1"
+                  value={formData.quantity}
+                  onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  placeholder="Enter quantity"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Unit *
+                </label>
+                <select
+                  value={formData.unit}
+                  onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                >
+                  <option value="pieces">Pieces</option>
+                  <option value="kg">Kilograms</option>
+                  <option value="tons">Tons</option>
+                  <option value="liters">Liters</option>
+                  <option value="boxes">Boxes</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Description
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows="3"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                placeholder="Describe your requirements..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Specifications
+              </label>
+              <textarea
+                value={formData.specifications}
+                onChange={(e) => setFormData({ ...formData, specifications: e.target.value })}
+                rows="2"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                placeholder="Technical specifications, standards, etc."
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Target Price (USD)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData.targetPrice}
+                  onChange={(e) => setFormData({ ...formData, targetPrice: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  placeholder="Your budget"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Urgency *
+                </label>
+                <select
+                  value={formData.urgency}
+                  onChange={(e) => setFormData({ ...formData, urgency: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                >
+                  <option value="Low">Low Priority</option>
+                  <option value="Medium">Medium Priority</option>
+                  <option value="High">High Priority</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Expected Delivery Date
+                </label>
+                <input
+                  type="date"
+                  value={formData.expectedDeliveryDate}
+                  onChange={(e) => setFormData({ ...formData, expectedDeliveryDate: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Delivery Country *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.deliveryCountry}
+                  onChange={(e) => setFormData({ ...formData, deliveryCountry: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  placeholder="e.g., USA"
+                />
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <div className="border-t border-gray-200 p-6 flex gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-6 py-2.5 border border-gray-300 hover:bg-gray-50 rounded-lg font-medium transition-all duration-200"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="flex-1 px-6 py-2.5 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-lg font-medium transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              <>
+                <Send className="w-5 h-5" />
+                Submit Quote Request
+              </>
+            )}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

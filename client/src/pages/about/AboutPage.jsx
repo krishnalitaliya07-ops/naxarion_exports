@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { 
   BookOpen, 
   MapPin, 
@@ -22,6 +24,55 @@ import {
   LineChart,
   Handshake
 } from 'lucide-react';
+
+// Animation variants
+const fadeInUp = {
+  hidden: { opacity: 0, y: 60 },
+  visible: { opacity: 1, y: 0 }
+};
+
+const slideInLeft = {
+  hidden: { opacity: 0, x: -60 },
+  visible: { opacity: 1, x: 0 }
+};
+
+const slideInRight = {
+  hidden: { opacity: 0, x: 60 },
+  visible: { opacity: 1, x: 0 }
+};
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: { opacity: 1, scale: 1 }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const AnimatedSection = ({ children, variants = fadeInUp, delay = 0, className = "" }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      className={className}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      variants={variants}
+      transition={{ duration: 0.6, delay, ease: "easeOut" }}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 const AboutPage = () => {
   const stats = [
@@ -109,64 +160,71 @@ const AboutPage = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br mt-[20px] from-slate-800 via-slate-900 to-slate-800 py-16 relative overflow-hidden">
+      <div className="bg-gradient-to-br mt-[20px] from-slate-800 via-slate-900 to-slate-800 py-8 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
         </div>
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center animate-fadeInUp">
-            <div className="inline-block bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full px-5 py-2 mb-5">
-              <p className="font-bold text-xs uppercase tracking-wide">About Nexarion</p>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <AnimatedSection variants={scaleIn} className="text-center">
+            <div className="inline-block mt-[20px] bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full px-5 py-2 mb-5">
+              <p className="font-bold  text-xs uppercase tracking-wide">About Nexarion</p>
             </div>
             <h1 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
               Connecting Global <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">Trade Partners</span>
             </h1>
-            <p className="text-base text-slate-300 max-w-3xl mx-auto leading-relaxed">
-              Your trusted B2B marketplace connecting manufacturers, wholesalers, and retailers worldwide since 2018. Making international trade simple, secure, and profitable.
-            </p>
-          </div>
+          </AnimatedSection>
         </div>
       </div>
 
       {/* Company Stats */}
-      <div className="bg-gradient-to-r from-blue-50 to-cyan-50 py-12">
+      <div className="bg-gradient-to-r from-blue-50 to-cyan-50 py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <motion.div 
+            className="grid grid-cols-2 md:grid-cols-4 gap-4"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+          >
             {stats.map((stat, index) => (
-              <div key={index} className="text-center group animate-fadeInUp" style={{ animationDelay: `${index * 100}ms` }}>
-                <div className={`bg-gradient-to-br ${stat.bg} backdrop-blur-sm rounded-xl p-5 shadow-md hover:shadow-lg transition-all border-2 ${stat.border}`}>
+              <motion.div 
+                key={index} 
+                className="text-center group"
+                variants={fadeInUp}
+              >
+                <div className={`bg-gradient-to-br ${stat.bg} backdrop-blur-sm rounded-xl p-3 shadow-md hover:shadow-lg transition-all border-2 ${stat.border}`}>
                   <div className={`text-3xl md:text-4xl font-black bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent mb-1`}>
                     {stat.value}
                   </div>
                   <p className="text-xs font-bold text-slate-600">{stat.label}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
 
       {/* Our Story */}
-      <div className="py-16 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
+      <div className="py-6 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
-          <div className="text-center mb-12">
+          <AnimatedSection variants={fadeInUp} className="text-center mb-12">
             <div className="inline-block bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full px-5 py-2 mb-4 shadow-lg">
               <p className="font-bold text-xs uppercase tracking-wide">Our Journey</p>
             </div>
             <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-3">The Nexarion Story</h2>
             <p className="text-sm text-slate-600 max-w-2xl mx-auto">From a simple idea to a global B2B marketplace</p>
-          </div>
+          </AnimatedSection>
 
-          <div className="grid md:grid-cols-2 gap-10 items-center">
+          <div className="grid md:grid-cols-2 gap-5 items-center">
             {/* Left Side - Story Content */}
-            <div className="relative group">
+            <AnimatedSection variants={slideInLeft} className="relative group">
               {/* Decorative Background */}
               <div className="absolute -top-4 -left-4 w-28 h-28 bg-gradient-to-br from-indigo-300 to-purple-300 rounded-full opacity-20 blur-3xl group-hover:opacity-30 transition-opacity"></div>
               <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-gradient-to-br from-blue-300 to-cyan-300 rounded-full opacity-20 blur-3xl group-hover:opacity-30 transition-opacity"></div>
               
-              <div className="relative bg-gradient-to-br from-white/90 via-indigo-50/40 to-purple-50/30 backdrop-blur-sm rounded-[30px] p-8 border-2 border-indigo-200/60 shadow-2xl hover:shadow-3xl transition-all">
+              <div className="relative bg-gradient-to-br from-white/90 via-indigo-50/40 to-purple-50/30 backdrop-blur-sm rounded-[30px] p-5 border-2 border-indigo-200/60 shadow-2xl hover:shadow-3xl transition-all">
                 {/* Icon & Title */}
                 <div className="flex items-start gap-4 mb-6">
                   <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all flex-shrink-0">
@@ -216,14 +274,24 @@ const AboutPage = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </AnimatedSection>
 
             {/* Right Side - Certifications */}
-            <div className="grid grid-cols-1 gap-4">
+            <motion.div 
+              className="grid grid-cols-1 gap-3"
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+            >
               {certifications.map((cert, index) => {
                 const IconComponent = cert.icon;
                 return (
-                  <div key={index} className={`group relative overflow-hidden bg-gradient-to-br ${cert.gradient} rounded-[25px] p-6 shadow-xl hover:shadow-2xl transition-all`}>
+                  <motion.div 
+                    key={index} 
+                    className={`group relative overflow-hidden bg-gradient-to-br ${cert.gradient} rounded-[25px] p-4 shadow-xl hover:shadow-2xl transition-all`}
+                    variants={fadeInUp}
+                  >
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
                     <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
                     
@@ -236,30 +304,30 @@ const AboutPage = () => {
                         <p className="text-xs text-white/90">{cert.subtitle}</p>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
 
       {/* Mission & Vision */}
-      <div className="py-16 bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/40">
+      <div className="py-6 bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
-          <div className="text-center mb-12">
+          <AnimatedSection variants={fadeInUp} className="text-center mb-6">
             <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-3">Mission & Vision</h2>
             <p className="text-sm text-slate-600">Our purpose and future direction</p>
-          </div>
+          </AnimatedSection>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-5">
             {/* Mission Card */}
-            <div className="relative group">
+            <AnimatedSection variants={slideInLeft} className="relative group">
               <div className="absolute -top-3 -left-3 w-24 h-24 bg-gradient-to-br from-blue-300 to-indigo-300 rounded-full opacity-20 blur-3xl group-hover:opacity-30 transition-opacity"></div>
               <div className="absolute -bottom-3 -right-3 w-28 h-28 bg-gradient-to-br from-indigo-300 to-purple-300 rounded-full opacity-20 blur-3xl group-hover:opacity-30 transition-opacity"></div>
               
-              <div className="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50/50 rounded-[30px] p-8 shadow-xl border-2 border-blue-200/60 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden">
+              <div className="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50/50 rounded-[30px] p-5 shadow-xl border-2 border-blue-200/60 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden">
                 <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full opacity-40"></div>
                 
                 <div className="relative z-10">
@@ -295,14 +363,14 @@ const AboutPage = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </AnimatedSection>
 
             {/* Vision Card */}
-            <div className="relative group">
+            <AnimatedSection variants={slideInRight} className="relative group">
               <div className="absolute -top-3 -right-3 w-24 h-24 bg-gradient-to-br from-orange-300 to-amber-300 rounded-full opacity-20 blur-3xl group-hover:opacity-30 transition-opacity"></div>
               <div className="absolute -bottom-3 -left-3 w-28 h-28 bg-gradient-to-br from-amber-300 to-yellow-300 rounded-full opacity-20 blur-3xl group-hover:opacity-30 transition-opacity"></div>
               
-              <div className="relative bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50/50 rounded-[30px] p-8 shadow-xl border-2 border-orange-200/60 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden">
+              <div className="relative bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50/50 rounded-[30px] p-5 shadow-xl border-2 border-orange-200/60 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden">
                 <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-br from-orange-100 to-amber-100 rounded-full opacity-40"></div>
                 
                 <div className="relative z-10">
@@ -338,24 +406,34 @@ const AboutPage = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </AnimatedSection>
           </div>
         </div>
       </div>
 
       {/* Core Values */}
-      <div className="py-16 bg-gradient-to-br from-purple-50/50 via-pink-50/30 to-blue-50/40">
+      <div className="py-6 bg-gradient-to-br from-purple-50/50 via-pink-50/30 to-blue-50/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <AnimatedSection variants={fadeInUp} className="text-center mb-6">
             <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4">Our Core Values</h2>
             <p className="text-sm text-slate-600 max-w-2xl mx-auto">The principles that guide every decision we make</p>
-          </div>
+          </AnimatedSection>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <motion.div 
+            className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+          >
             {values.map((value, index) => {
               const IconComponent = value.icon;
               return (
-                <div key={index} className={`bg-gradient-to-br ${value.bg} backdrop-blur-sm rounded-[20px] p-6 shadow-lg border-2 ${value.border} hover:shadow-xl hover:scale-105 transition-all group text-center`}>
+                <motion.div 
+                  key={index} 
+                  className={`bg-gradient-to-br ${value.bg} backdrop-blur-sm rounded-[20px] p-4 shadow-lg border-2 ${value.border} hover:shadow-xl hover:scale-105 transition-all group text-center`}
+                  variants={fadeInUp}
+                >
                   <div className="relative inline-block mb-4">
                     <div className={`w-16 h-16 bg-gradient-to-br ${value.gradient} rounded-xl flex items-center justify-center mx-auto shadow-md group-hover:scale-110 transition-transform`}>
                       <IconComponent className="text-white" size={28} />
@@ -363,24 +441,34 @@ const AboutPage = () => {
                   </div>
                   <h3 className="text-base font-black text-slate-900 mb-2">{value.title}</h3>
                   <p className="text-xs text-slate-700 leading-relaxed">{value.description}</p>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </div>
 
       {/* Leadership Team */}
-      <div className="py-16 bg-gradient-to-r from-slate-50 to-emerald-50/40">
+      <div className="py-6 bg-gradient-to-r from-slate-50 to-emerald-50/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <AnimatedSection variants={fadeInUp} className="text-center mb-6">
             <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4">Leadership Team</h2>
             <p className="text-sm text-slate-600 max-w-2xl mx-auto">Experienced professionals from top tech and trade companies</p>
-          </div>
+          </AnimatedSection>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <motion.div 
+            className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+          >
             {team.map((member, index) => (
-              <div key={index} className={`bg-gradient-to-br ${member.bg} backdrop-blur-sm rounded-[20px] p-5 shadow-lg border-2 ${member.border} hover:shadow-xl hover:scale-105 transition-all group text-center`}>
+              <motion.div 
+                key={index} 
+                className={`bg-gradient-to-br ${member.bg} backdrop-blur-sm rounded-[20px] p-5 shadow-lg border-2 ${member.border} hover:shadow-xl hover:scale-105 transition-all group text-center`}
+                variants={fadeInUp}
+              >
                 <div className={`w-24 h-24 bg-gradient-to-br ${member.gradient} rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
                   <UserCircle className="text-white" size={48} />
                 </div>
@@ -395,34 +483,44 @@ const AboutPage = () => {
                     <Twitter size={14} />
                   </a>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
 
       {/* Why Choose Us */}
-      <div className="py-16 bg-gradient-to-br from-blue-50/50 via-emerald-50/40 to-purple-50/50">
+      <div className="py-6 bg-gradient-to-br from-blue-50/50 via-emerald-50/40 to-purple-50/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <AnimatedSection variants={fadeInUp} className="text-center mb-6">
             <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4">Why Choose Nexarion</h2>
             <p className="text-sm text-slate-600 max-w-2xl mx-auto">Real advantages backed by real numbers</p>
-          </div>
+          </AnimatedSection>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <motion.div 
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+          >
             {features.map((feature, index) => {
               const IconComponent = feature.icon;
               return (
-                <div key={index} className={`bg-gradient-to-br ${feature.bg} rounded-[20px] p-6 border-2 ${feature.border} hover:shadow-xl hover:scale-105 transition-all group`}>
+                <motion.div 
+                  key={index} 
+                  className={`bg-gradient-to-br ${feature.bg} rounded-[20px] p-6 border-2 ${feature.border} hover:shadow-xl hover:scale-105 transition-all group`}
+                  variants={fadeInUp}
+                >
                   <div className={`w-14 h-14 bg-gradient-to-br ${feature.gradient} rounded-xl flex items-center justify-center mb-4 shadow-md group-hover:scale-110 transition-transform`}>
                     <IconComponent className="text-white" size={24} />
                   </div>
                   <h3 className="text-base font-black text-slate-900 mb-2">{feature.title}</h3>
                   <p className="text-xs text-slate-700 leading-relaxed">{feature.description}</p>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

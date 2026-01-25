@@ -49,10 +49,15 @@ const DashboardLayout = () => {
   };
 
   const handleLogoutConfirm = () => {
+    // Clear localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    // Dispatch logout
     dispatch(logout());
     toast.success('Logged out successfully');
-    navigate('/');
     setShowLogoutModal(false);
+    // Hard navigate to ensure clean state
+    window.location.href = '/login';
   };
 
   const handleLogoutCancel = () => {

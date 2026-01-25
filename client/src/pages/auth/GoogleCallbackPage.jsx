@@ -22,7 +22,13 @@ const GoogleCallbackPage = () => {
         localStorage.setItem('user', JSON.stringify(user));
         
         toast.success('Logged in successfully!');
-        navigate('/');
+        
+        // Redirect based on user role
+        if (user.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
       } catch (error) {
         toast.error('Authentication failed');
         navigate('/login');

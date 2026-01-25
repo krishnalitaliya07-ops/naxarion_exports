@@ -233,7 +233,7 @@ const DashboardQuotes = () => {
   return (
     <div className="space-y-6 pb-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fadeInUp">
         <div>
           <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3">
             <FileText className="w-8 h-8 text-teal-600" />
@@ -253,7 +253,7 @@ const DashboardQuotes = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 animate-fadeInUp" style={{animationDelay: '0.1s'}}>
         <StatCard
           title="Total Quotes"
           value={stats.total}
@@ -287,7 +287,7 @@ const DashboardQuotes = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 animate-fadeInUp" style={{animationDelay: '0.2s'}}>
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
@@ -414,7 +414,7 @@ const QuoteCard = ({ quote, index, statusConfig, urgencyConfig, formatDate, form
 
   return (
     <div
-      className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 animate-slideInLeft overflow-hidden"
+      className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:border-teal-300 hover:-translate-y-2 transition-all duration-300 animate-slideInLeft overflow-hidden group"
       style={{ animationDelay: `${index * 50}ms` }}
     >
       <div className="p-6">
@@ -422,25 +422,24 @@ const QuoteCard = ({ quote, index, statusConfig, urgencyConfig, formatDate, form
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-lg font-bold text-gray-900">{quote.quoteId}</h3>
-              <span className={`px-2 py-0.5 rounded text-xs font-semibold ${urgency.badge}`}>
+              <h3 className="text-lg font-bold text-gray-900 group-hover:text-teal-600 transition-colors duration-300">{quote.quoteId}</h3>
+              <span className={`px-2 py-0.5 rounded text-xs font-semibold ${urgency.badge} group-hover:scale-110 transition-transform duration-300`}>
                 {quote.urgency}
               </span>
             </div>
             <p className="text-gray-600 font-medium">{quote.productName}</p>
             <p className="text-sm text-gray-500">{quote.category}</p>
           </div>
-          <span className={`px-3 py-1.5 rounded-full text-xs font-semibold ${config.badge} flex items-center gap-1.5`}>
-            <StatusIcon className="w-3.5 h-3.5" />
+          <span className={`px-3 py-1.5 rounded-full text-xs font-semibold ${config.badge} flex items-center gap-1.5 group-hover:scale-110 transition-transform duration-300`}>
+            <StatusIcon className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform duration-300" />
             {config.label}
           </span>
         </div>
 
         {/* Details */}
-        <div className="space-y-3 mb-4">
-          <div className="flex items-center justify-between text-sm">
+        <div className="space-y-3 mb-4">\n          <div className="flex items-center justify-between text-sm group-hover:translate-x-1 transition-transform duration-300">
             <span className="text-gray-600 flex items-center gap-1.5">
-              <Package className="w-4 h-4" />
+              <Package className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
               Quantity
             </span>
             <span className="font-semibold text-gray-900">
@@ -449,9 +448,9 @@ const QuoteCard = ({ quote, index, statusConfig, urgencyConfig, formatDate, form
           </div>
 
           {quote.targetPrice && (
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between text-sm group-hover:translate-x-1 transition-transform duration-300">
               <span className="text-gray-600 flex items-center gap-1.5">
-                <DollarSign className="w-4 h-4" />
+                <DollarSign className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
                 Target Price
               </span>
               <span className="font-semibold text-gray-900">
@@ -460,9 +459,9 @@ const QuoteCard = ({ quote, index, statusConfig, urgencyConfig, formatDate, form
             </div>
           )}
 
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center justify-between text-sm group-hover:translate-x-1 transition-transform duration-300">
             <span className="text-gray-600 flex items-center gap-1.5">
-              <Calendar className="w-4 h-4" />
+              <Calendar className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
               Requested
             </span>
             <span className="font-medium text-gray-900">
@@ -471,9 +470,9 @@ const QuoteCard = ({ quote, index, statusConfig, urgencyConfig, formatDate, form
           </div>
 
           {quote.expectedDeliveryDate && (
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between text-sm group-hover:translate-x-1 transition-transform duration-300">
               <span className="text-gray-600 flex items-center gap-1.5">
-                <Calendar className="w-4 h-4" />
+                <Calendar className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
                 Expected Delivery
               </span>
               <span className="font-medium text-gray-900">
@@ -485,16 +484,16 @@ const QuoteCard = ({ quote, index, statusConfig, urgencyConfig, formatDate, form
 
         {/* Supplier Response */}
         {quote.supplierResponse && quote.supplierResponse.quotedPrice && (
-          <div className={`${config.bg} border ${config.border} rounded-lg p-3 mb-4`}>
+          <div className={`${config.bg} border ${config.border} rounded-lg p-3 mb-4 group-hover:scale-[1.02] transition-all duration-300`}>
             <div className="flex items-center gap-2 mb-2">
-              <MessageSquare className={`w-4 h-4 ${config.color}`} />
+              <MessageSquare className={`w-4 h-4 ${config.color} group-hover:rotate-12 transition-transform duration-300`} />
               <span className={`text-sm font-semibold ${config.color}`}>
                 Supplier Quote
               </span>
             </div>
             <div className="space-y-1 text-sm">
               {quote.supplierResponse.quotedPrice && (
-                <div className="flex justify-between">
+                <div className="flex justify-between group-hover:translate-x-1 transition-transform duration-300">
                   <span className="text-gray-600">Quoted Price:</span>
                   <span className="font-bold text-gray-900">
                     {formatCurrency(quote.supplierResponse.quotedPrice)}
@@ -502,7 +501,7 @@ const QuoteCard = ({ quote, index, statusConfig, urgencyConfig, formatDate, form
                 </div>
               )}
               {quote.supplierResponse.moq && (
-                <div className="flex justify-between">
+                <div className="flex justify-between group-hover:translate-x-1 transition-transform duration-300">
                   <span className="text-gray-600">MOQ:</span>
                   <span className="font-medium text-gray-900">
                     {quote.supplierResponse.moq} pieces
@@ -510,7 +509,7 @@ const QuoteCard = ({ quote, index, statusConfig, urgencyConfig, formatDate, form
                 </div>
               )}
               {quote.supplierResponse.leadTime?.value && (
-                <div className="flex justify-between">
+                <div className="flex justify-between group-hover:translate-x-1 transition-transform duration-300">
                   <span className="text-gray-600">Lead Time:</span>
                   <span className="font-medium text-gray-900">
                     {quote.supplierResponse.leadTime.value} {quote.supplierResponse.leadTime.unit || 'days'}
@@ -524,9 +523,9 @@ const QuoteCard = ({ quote, index, statusConfig, urgencyConfig, formatDate, form
         {/* Action Button */}
         <button
           onClick={onViewDetails}
-          className="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+          className="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-lg hover:-translate-y-0.5 transform group-hover:scale-[1.02]"
         >
-          <Eye className="w-4 h-4" />
+          <Eye className="w-4 h-4 group-hover:scale-125 transition-transform duration-300" />
           View Full Details
         </button>
       </div>
@@ -542,12 +541,12 @@ const QuoteDetailsModal = ({ quote, statusConfig, urgencyConfig, formatDate, for
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden animate-scaleIn transform transition-all duration-300">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden animate-scaleIn transform transition-all duration-500">
         {/* Header */}
-        <div className={`${config.bg} ${config.border} border-b p-6 transition-all duration-300`}>
+        <div className={`${config.bg} ${config.border} border-b p-6 transition-all duration-300 animate-slideInLeft`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-full ${config.bg} ${config.border} border-2 flex items-center justify-center`}>
+              <div className={`w-12 h-12 rounded-full ${config.bg} ${config.border} border-2 flex items-center justify-center animate-pulse-slow`}>
                 <StatusIcon className={`w-6 h-6 ${config.color}`} />
               </div>
               <div>
@@ -557,7 +556,7 @@ const QuoteDetailsModal = ({ quote, statusConfig, urgencyConfig, formatDate, for
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white/50 rounded-lg transition-colors duration-200"
+              className="p-2 hover:bg-white/50 rounded-lg transition-all duration-300 hover:rotate-90 hover:scale-110"
             >
               <X className="w-6 h-6 text-gray-600" />
             </button>
@@ -568,76 +567,82 @@ const QuoteDetailsModal = ({ quote, statusConfig, urgencyConfig, formatDate, for
         <div className="overflow-y-auto max-h-[calc(90vh-180px)] p-6 scrollbar-hide">
           <div className="space-y-6">
             {/* Status and Urgency */}
-            <div className="flex items-center gap-3">
-              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${config.badge} flex items-center gap-2 shadow-md hover:shadow-lg transition-all duration-300`}>
+            <div className="flex items-center gap-3 animate-fadeInUp" style={{animationDelay: '0.1s'}}>
+              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${config.badge} flex items-center gap-2 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-default`}>
                 <StatusIcon className="w-4 h-4" />
                 {config.label}
               </span>
-              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${urgency.badge} shadow-md hover:shadow-lg transition-all duration-300`}>
+              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${urgency.badge} shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-default`}>
                 {quote.urgency} Priority
               </span>
             </div>
 
             {/* Product Information */}
-            <div>
+            <div className="animate-fadeInUp" style={{animationDelay: '0.2s'}}>
               <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Package className="w-5 h-5 text-teal-600" />
+                <Package className="w-5 h-5 text-teal-600 animate-float" />
                 Product Information
               </h3>
-              <div className="bg-gray-50 rounded-lg p-4 space-y-3 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="bg-gradient-to-br from-teal-50 via-cyan-50 to-blue-50 border-l-4 border-teal-500 rounded-lg p-5 space-y-3 shadow-md hover:shadow-xl hover:from-teal-100 hover:via-cyan-100 hover:to-blue-100 transition-all duration-300 transform hover:scale-[1.01]">
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Product Name</p>
-                    <p className="font-semibold text-gray-900">{quote.productName}</p>
+                  <div className="bg-white/70 backdrop-blur-sm rounded-lg p-3 hover:bg-white transition-all duration-300">
+                    <p className="text-xs font-semibold text-teal-700 mb-1.5 uppercase tracking-wide">Product Name</p>
+                    <p className="font-bold text-gray-900">{quote.productName}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Category</p>
-                    <p className="font-semibold text-gray-900">{quote.category}</p>
+                  <div className="bg-white/70 backdrop-blur-sm rounded-lg p-3 hover:bg-white transition-all duration-300">
+                    <p className="text-xs font-semibold text-teal-700 mb-1.5 uppercase tracking-wide">Category</p>
+                    <p className="font-bold text-gray-900">{quote.category}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Quantity</p>
-                    <p className="font-semibold text-gray-900">{quote.quantity} {quote.unit}</p>
+                  <div className="bg-white/70 backdrop-blur-sm rounded-lg p-3 hover:bg-white transition-all duration-300">
+                    <p className="text-xs font-semibold text-teal-700 mb-1.5 uppercase tracking-wide">Quantity</p>
+                    <p className="font-bold text-gray-900">{quote.quantity} {quote.unit}</p>
                   </div>
                   {quote.targetPrice && (
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Target Price</p>
-                      <p className="font-semibold text-gray-900">{formatCurrency(quote.targetPrice)}</p>
+                    <div className="bg-white/70 backdrop-blur-sm rounded-lg p-3 hover:bg-white transition-all duration-300">
+                      <p className="text-xs font-semibold text-teal-700 mb-1.5 uppercase tracking-wide">Target Price</p>
+                      <p className="font-bold text-teal-600 text-lg">{formatCurrency(quote.targetPrice)}</p>
                     </div>
                   )}
                 </div>
                 {quote.description && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Description</p>
-                    <p className="text-gray-900">{quote.description}</p>
+                  <div className="bg-white/70 backdrop-blur-sm rounded-lg p-3 hover:bg-white transition-all duration-300">
+                    <p className="text-xs font-semibold text-teal-700 mb-1.5 uppercase tracking-wide">Description</p>
+                    <p className="text-gray-900 leading-relaxed">{quote.description}</p>
                   </div>
                 )}
                 {quote.specifications && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Specifications</p>
-                    <p className="text-gray-900">{quote.specifications}</p>
+                  <div className="bg-white/70 backdrop-blur-sm rounded-lg p-3 hover:bg-white transition-all duration-300">
+                    <p className="text-xs font-semibold text-teal-700 mb-1.5 uppercase tracking-wide">Specifications</p>
+                    <p className="text-gray-900 leading-relaxed">{quote.specifications}</p>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Delivery Information */}
-            <div>
+            <div className="animate-fadeInUp" style={{animationDelay: '0.3s'}}>
               <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-teal-600" />
+                <MapPin className="w-5 h-5 text-teal-600 animate-float" />
                 Delivery Information
               </h3>
-              <div className="bg-gray-50 rounded-lg p-4 space-y-3 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 border-l-4 border-emerald-500 rounded-lg p-5 space-y-3 shadow-md hover:shadow-xl hover:from-emerald-100 hover:via-green-100 hover:to-teal-100 transition-all duration-300 transform hover:scale-[1.01]">
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Delivery Location</p>
-                    <p className="font-semibold text-gray-900">
+                  <div className="bg-white/70 backdrop-blur-sm rounded-lg p-3 hover:bg-white transition-all duration-300">
+                    <p className="text-xs font-semibold text-emerald-700 mb-1.5 uppercase tracking-wide flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5" />
+                      Delivery Location
+                    </p>
+                    <p className="font-bold text-gray-900">
                       {quote.deliveryLocation?.city}, {quote.deliveryLocation?.country}
                     </p>
                   </div>
                   {quote.expectedDeliveryDate && (
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Expected Delivery</p>
-                      <p className="font-semibold text-gray-900">{formatDate(quote.expectedDeliveryDate)}</p>
+                    <div className="bg-white/70 backdrop-blur-sm rounded-lg p-3 hover:bg-white transition-all duration-300">
+                      <p className="text-xs font-semibold text-emerald-700 mb-1.5 uppercase tracking-wide flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5" />
+                        Expected Delivery
+                      </p>
+                      <p className="font-bold text-emerald-600 text-lg">{formatDate(quote.expectedDeliveryDate)}</p>
                     </div>
                   )}
                 </div>
@@ -646,24 +651,40 @@ const QuoteDetailsModal = ({ quote, statusConfig, urgencyConfig, formatDate, for
 
             {/* Customer Information */}
             {quote.customerInfo && (
-              <div>
+              <div className="animate-fadeInUp" style={{animationDelay: '0.4s'}}>
                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-teal-600" />
+                  <Building2 className="w-5 h-5 text-teal-600 animate-float" />
                   Contact Information
                 </h3>
-                <div className="bg-gray-50 rounded-lg p-4 space-y-2 shadow-sm hover:shadow-md transition-all duration-300">
-                  <p className="font-semibold text-gray-900">{quote.customerInfo.name}</p>
+                <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-rose-50 border-l-4 border-purple-500 rounded-lg p-5 space-y-3 shadow-md hover:shadow-xl hover:from-purple-100 hover:via-pink-100 hover:to-rose-100 transition-all duration-300 transform hover:scale-[1.01]">
+                  <div className="bg-white/70 backdrop-blur-sm rounded-lg p-3 hover:bg-white transition-all duration-300">
+                    <p className="text-xs font-semibold text-purple-700 mb-1.5 uppercase tracking-wide">Name</p>
+                    <p className="font-bold text-gray-900 text-lg">{quote.customerInfo.name}</p>
+                  </div>
                   {quote.customerInfo.company && (
-                    <p className="text-gray-600">{quote.customerInfo.company}</p>
-                  )}
-                  <div className="flex items-center gap-4 text-sm text-gray-600 pt-2 border-t border-gray-200">
-                    <div className="flex items-center gap-1.5">
-                      <Mail className="w-4 h-4" />
-                      <span>{quote.customerInfo.email}</span>
+                    <div className="bg-white/70 backdrop-blur-sm rounded-lg p-3 hover:bg-white transition-all duration-300">
+                      <p className="text-xs font-semibold text-purple-700 mb-1.5 uppercase tracking-wide">Company</p>
+                      <p className="font-bold text-gray-900">{quote.customerInfo.company}</p>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Phone className="w-4 h-4" />
-                      <span>{quote.customerInfo.phone}</span>
+                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                    <div className="bg-white/70 backdrop-blur-sm rounded-lg p-3 hover:bg-white transition-all duration-300 flex items-center gap-2">
+                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <Mail className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-purple-700 font-semibold">Email</p>
+                        <p className="text-sm text-gray-900 font-medium truncate">{quote.customerInfo.email}</p>
+                      </div>
+                    </div>
+                    <div className="bg-white/70 backdrop-blur-sm rounded-lg p-3 hover:bg-white transition-all duration-300 flex items-center gap-2">
+                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <Phone className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-purple-700 font-semibold">Phone</p>
+                        <p className="text-sm text-gray-900 font-medium">{quote.customerInfo.phone}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -672,62 +693,62 @@ const QuoteDetailsModal = ({ quote, statusConfig, urgencyConfig, formatDate, for
 
             {/* Supplier Response */}
             {quote.supplierResponse && (
-              <div>
+              <div className="animate-fadeInUp" style={{animationDelay: '0.5s'}}>
                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5 text-teal-600" />
+                  <MessageSquare className="w-5 h-5 text-teal-600 animate-float" />
                   Supplier Response
                 </h3>
-                <div className={`${config.bg} ${config.border} border rounded-lg p-4 space-y-3 shadow-md hover:shadow-lg transition-all duration-300`}>
+                <div className="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 border-l-4 border-amber-500 rounded-lg p-5 space-y-3 shadow-md hover:shadow-xl hover:from-amber-100 hover:via-yellow-100 hover:to-orange-100 hover:scale-[1.02] transition-all duration-300 transform">
                   <div className="grid grid-cols-2 gap-4">
                     {quote.supplierResponse.quotedPrice && (
-                      <div>
-                        <p className="text-sm text-gray-600 mb-1">Quoted Price</p>
-                        <p className="text-xl font-bold text-gray-900">
+                      <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 hover:bg-white transition-all duration-300 border-2 border-amber-200">
+                        <p className="text-xs font-semibold text-amber-700 mb-1.5 uppercase tracking-wide">Quoted Price</p>
+                        <p className="text-2xl font-black text-amber-600">
                           {formatCurrency(quote.supplierResponse.quotedPrice)}
                         </p>
                       </div>
                     )}
                     {quote.supplierResponse.moq && (
-                      <div>
-                        <p className="text-sm text-gray-600 mb-1">Minimum Order Quantity</p>
-                        <p className="text-xl font-bold text-gray-900">
-                          {quote.supplierResponse.moq} pieces
+                      <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 hover:bg-white transition-all duration-300 border-2 border-amber-200">
+                        <p className="text-xs font-semibold text-amber-700 mb-1.5 uppercase tracking-wide">Minimum Order Qty</p>
+                        <p className="text-2xl font-black text-gray-900">
+                          {quote.supplierResponse.moq} <span className="text-base font-semibold text-gray-600">pieces</span>
                         </p>
                       </div>
                     )}
                     {quote.supplierResponse.leadTime?.value && (
-                      <div>
-                        <p className="text-sm text-gray-600 mb-1">Lead Time</p>
-                        <p className="font-semibold text-gray-900">
-                          {quote.supplierResponse.leadTime.value} {quote.supplierResponse.leadTime.unit || 'days'}
+                      <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 hover:bg-white transition-all duration-300">
+                        <p className="text-xs font-semibold text-amber-700 mb-1.5 uppercase tracking-wide">Lead Time</p>
+                        <p className="font-bold text-gray-900 text-lg">
+                          {quote.supplierResponse.leadTime.value} <span className="text-sm text-gray-600">{quote.supplierResponse.leadTime.unit || 'days'}</span>
                         </p>
                       </div>
                     )}
                     {quote.supplierResponse.validUntil && (
-                      <div>
-                        <p className="text-sm text-gray-600 mb-1">Valid Until</p>
-                        <p className="font-semibold text-gray-900">
+                      <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 hover:bg-white transition-all duration-300">
+                        <p className="text-xs font-semibold text-amber-700 mb-1.5 uppercase tracking-wide">Valid Until</p>
+                        <p className="font-bold text-gray-900 text-lg">
                           {formatDate(quote.supplierResponse.validUntil)}
                         </p>
                       </div>
                     )}
                   </div>
                   {quote.supplierResponse.paymentTerms && (
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Payment Terms</p>
-                      <p className="text-gray-900">{quote.supplierResponse.paymentTerms}</p>
+                    <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 hover:bg-white transition-all duration-300">
+                      <p className="text-xs font-semibold text-amber-700 mb-1.5 uppercase tracking-wide">Payment Terms</p>
+                      <p className="text-gray-900 font-medium leading-relaxed">{quote.supplierResponse.paymentTerms}</p>
                     </div>
                   )}
                   {quote.supplierResponse.shippingTerms && (
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Shipping Terms</p>
-                      <p className="text-gray-900">{quote.supplierResponse.shippingTerms}</p>
+                    <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 hover:bg-white transition-all duration-300">
+                      <p className="text-xs font-semibold text-amber-700 mb-1.5 uppercase tracking-wide">Shipping Terms</p>
+                      <p className="text-gray-900 font-medium leading-relaxed">{quote.supplierResponse.shippingTerms}</p>
                     </div>
                   )}
                   {quote.supplierResponse.notes && (
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Additional Notes</p>
-                      <p className="text-gray-900">{quote.supplierResponse.notes}</p>
+                    <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 hover:bg-white transition-all duration-300 border-2 border-dashed border-amber-300">
+                      <p className="text-xs font-semibold text-amber-700 mb-1.5 uppercase tracking-wide">Additional Notes</p>
+                      <p className="text-gray-900 font-medium leading-relaxed italic">{quote.supplierResponse.notes}</p>
                     </div>
                   )}
                 </div>
@@ -737,22 +758,22 @@ const QuoteDetailsModal = ({ quote, statusConfig, urgencyConfig, formatDate, for
         </div>
 
         {/* Footer Actions */}
-        <div className="border-t border-gray-200 p-6 flex gap-3">
+        <div className="border-t border-gray-200 p-6 flex gap-3 animate-fadeInUp" style={{animationDelay: '0.6s'}}>
           {quote.status === 'quoted' && (
             <>
-              <button className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-all duration-200 flex items-center gap-2 shadow-lg shadow-green-200 hover:shadow-xl hover:shadow-green-300 hover:-translate-y-0.5 transform">
-                <CheckCircle className="w-5 h-5" />
+              <button className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-all duration-300 flex items-center gap-2 shadow-lg shadow-green-200 hover:shadow-xl hover:shadow-green-300 hover:-translate-y-1 hover:scale-105 transform">
+                <CheckCircle className="w-5 h-5 hover:rotate-12 transition-transform duration-300" />
                 Accept Quote
               </button>
-              <button className="px-6 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 transform">
-                <XCircle className="w-5 h-5" />
+              <button className="px-6 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-1 hover:scale-105 transform">
+                <XCircle className="w-5 h-5 hover:rotate-12 transition-transform duration-300" />
                 Reject
               </button>
             </>
           )}
           <button
             onClick={onClose}
-            className="ml-auto px-6 py-2.5 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 transform"
+            className="ml-auto px-6 py-2.5 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 hover:scale-105 transform"
           >
             Close
           </button>
