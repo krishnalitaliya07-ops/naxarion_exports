@@ -41,7 +41,7 @@ exports.advancedFilter = (req, res, next) => {
   let query = { ...req.query };
 
   // Fields to exclude from filtering
-  const removeFields = ['page', 'limit', 'sort', 'select', 'search'];
+  const removeFields = ['page', 'limit', 'sort', 'select', 'search', 'minPrice', 'maxPrice', 'country'];
   removeFields.forEach(param => delete query[param]);
 
   // Create query string
@@ -51,6 +51,23 @@ exports.advancedFilter = (req, res, next) => {
   queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
 
   req.queryFilter = JSON.parse(queryStr);
+
+  // Price range filtering
+  if (req.query.minPrice || req.query.maxPrice) {
+    if (req.query.minPrice) {
+      req.queryFilter['price.max'] = req.queryFilter['price.max'] || {};
+      req.queryFilter['price.max'].$gte = parseInt(req.query.minPrice);
+    }
+    if (req.query.maxPrice) {
+      req.queryFilter['price.min'] = req.queryFilter['price.min'] || {};
+      req.queryFilter['price.min'].$lte = parseInt(req.query.maxPrice);
+    }
+  }
+
+  // Country filtering (filter by supplier country)
+  if (req.query.country) {
+    req.countryFilter = req.query.country;
+  }
 
   // Search functionality
   if (req.query.search) {

@@ -23,6 +23,9 @@ const apiConnector = (method, url, bodyData, headers, params) => {
   // Log request details in development
   if (import.meta.env.DEV) {
     console.log(`API Request: ${method} ${url}`);
+    if (params) {
+      console.log("Query Params:", params);
+    }
     if (bodyData) {
       if (bodyData instanceof FormData) {
         console.log("Request data: FormData with entries:");

@@ -1,648 +1,546 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, Filter, Grid3x3, List, Eye, Phone, Star, Building, CheckCircle, DollarSign, LayoutGrid, Globe, Box } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { useInView } from 'framer-motion';
-import { useRef } from 'react';
-
-// Animation variants
-const fadeInUp = {
-  hidden: { opacity: 0, y: 60 },
-  visible: { opacity: 1, y: 0 }
-};
-
-const slideInLeft = {
-  hidden: { opacity: 0, x: -60 },
-  visible: { opacity: 1, x: 0 }
-};
-
-const slideInRight = {
-  hidden: { opacity: 0, x: 60 },
-  visible: { opacity: 1, x: 0 }
-};
-
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.8 },
-  visible: { opacity: 1, scale: 1 }
-};
-
-// Reusable animated section wrapper
-const AnimatedSection = ({ children, variants = fadeInUp, delay = 0, className = "" }) => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
-  return (
-    <motion.div
-      ref={ref}
-      className={className}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-      variants={variants}
-      transition={{ duration: 0.6, delay, ease: "easeOut" }}
-    >
-      {children}
-    </motion.div>
-  );
-};
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
+import { getAllProducts } from '../../services/operations/productAPI';
+import { getAllCategories } from '../../services/operations/categoryAPI';
 
 const ProductsPage = () => {
-  const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [filters, setFilters] = useState({
+    search: '',
+    category: '',
+    priceRange: '',
+    minPrice: '',
+    maxPrice: '',
+    moqRange: '',
+    supplierRating: '',
+    country: '',
+    page: 1,
+    limit: 12
+  });
+  const [sortBy, setSortBy] = useState('latest');
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pages: 1,
+    total: 0
+  });
 
-  const products = [
-    {
-      id: 1,
-      name: 'Premium Wireless Headphones',
-      description: 'High-quality audio with noise cancellation technology',
-      price: '$25-35',
-      moq: 100,
-      category: 'Electronics',
-      categoryColor: 'amber',
-      rating: 4.8,
-      reviews: 234,
-      supplier: 'TechSupply Co.',
-      country: 'China',
-      verified: true,
-      featured: true,
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop&q=80'
-    },
-    {
-      id: 2,
-      name: 'Luxury Smartwatch',
-      description: 'Advanced fitness tracking with GPS',
-      price: '$45-65',
-      moq: 500,
-      category: 'Accessories',
-      categoryColor: 'cyan',
-      rating: 4.9,
-      reviews: 156,
-      supplier: 'SmartTech Ltd.',
-      country: 'Taiwan',
-      verified: true,
-      featured: false,
-      image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop&q=80'
-    },
-    {
-      id: 3,
-      name: 'Premium Running Shoes',
-      description: 'Professional grade athletic footwear',
-      price: '$30-50',
-      moq: 200,
-      category: 'Footwear',
-      categoryColor: 'purple',
-      rating: 4.7,
-      reviews: 89,
-      supplier: 'SportGear Inc.',
-      country: 'Vietnam',
-      verified: true,
-      hotDeal: true,
-      image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop&q=80'
-    },
-    {
-      id: 4,
-      name: 'Designer Sunglasses',
-      description: 'UV protection with premium frames',
-      price: '$15-25',
-      moq: 50,
-      category: 'Fashion',
-      categoryColor: 'pink',
-      rating: 4.6,
-      reviews: 145,
-      supplier: 'Fashion Hub',
-      country: 'India',
-      verified: true,
-      featured: false,
-      image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=300&fit=crop&q=80'
-    },
-    {
-      id: 5,
-      name: 'Bluetooth Speaker',
-      description: 'Portable waterproof wireless speaker',
-      price: '$20-30',
-      moq: 150,
-      category: 'Electronics',
-      categoryColor: 'amber',
-      rating: 4.8,
-      reviews: 312,
-      supplier: 'SoundWave Co.',
-      country: 'China',
-      verified: true,
-      featured: true,
-      image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=300&fit=crop&q=80'
-    },
-    {
-      id: 6,
-      name: 'Leather Backpack',
-      description: 'Premium leather with laptop compartment',
-      price: '$35-55',
-      moq: 100,
-      category: 'Bags',
-      categoryColor: 'orange',
-      rating: 4.9,
-      reviews: 98,
-      supplier: 'LeatherCraft',
-      country: 'Turkey',
-      verified: true,
-      featured: false,
-      image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300&fit=crop&q=80'
+  useEffect(() => {
+    fetchCategories();
+    fetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters, sortBy]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await getAllCategories();
+      if (response.success) {
+        setCategories(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch categories:', error);
     }
-  ];
-
-  const getCategoryColorClass = (color) => {
-    const colors = {
-      amber: 'bg-amber-100 text-amber-700',
-      cyan: 'bg-cyan-100 text-cyan-700',
-      purple: 'bg-purple-100 text-purple-700',
-      pink: 'bg-pink-100 text-pink-700',
-      orange: 'bg-orange-100 text-orange-700'
-    };
-    return colors[color] || 'bg-slate-100 text-slate-700';
   };
 
-  const getSupplierGradient = (categoryColor) => {
-    const gradients = {
-      amber: 'from-emerald-400 to-teal-600',
-      cyan: 'from-cyan-400 to-blue-600',
-      purple: 'from-purple-400 to-purple-600',
-      pink: 'from-pink-400 to-rose-600',
-      orange: 'from-orange-400 to-orange-600'
-    };
-    return gradients[categoryColor] || 'from-emerald-400 to-teal-600';
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const params = {};
+      
+      if (filters.search) params.search = filters.search;
+      if (filters.category) params.category = filters.category;
+      if (filters.minPrice) params.minPrice = filters.minPrice;
+      if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+      if (filters.country) params.country = filters.country;
+      params.page = filters.page;
+      params.limit = filters.limit;
+      params.isApproved = 'approved'; // Only show approved products
+      
+      // Add sorting parameters
+      if (sortBy === 'priceAsc') {
+        params.sort = 'price.min';
+      } else if (sortBy === 'priceDesc') {
+        params.sort = '-price.min';
+      } else if (sortBy === 'popular') {
+        params.sort = '-views,-totalOrders';
+      } else {
+        params.sort = '-createdAt'; // Latest (default)
+      }
+
+      const response = await getAllProducts(params);
+      if (response.success) {
+        setProducts(response.data || []);
+        setPagination({
+          page: response.page,
+          pages: response.pages,
+          total: response.total
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (e) => {
+    setFilters({ ...filters, search: e.target.value, page: 1 });
+  };
+
+  const handleFilterChange = (key, value) => {
+    // Handle price range radio buttons
+    if (key === 'priceRange') {
+      const [min, max] = value.split('-');
+      setFilters({ ...filters, priceRange: value, minPrice: min, maxPrice: max, page: 1 });
+    } else {
+      setFilters({ ...filters, [key]: value, page: 1 });
+    }
+  };
+
+  const handleApplyFilters = () => {
+    fetchProducts();
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      search: '',
+      category: '',
+      priceRange: '',
+      minPrice: '',
+      maxPrice: '',
+      moqRange: '',
+      supplierRating: '',
+      country: '',
+      page: 1,
+      limit: 12
+    });
+    setSortBy('latest');
+  };
+
+  const handleSortChange = (e) => {
+    setSortBy(e.target.value);
   };
 
   return (
     <div className="min-h-screen bg-slate-50">
-      
       {/* Page Header */}
-      <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 py-16 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
-        </div>
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-8">
-          <AnimatedSection className="text-center">
-            <motion.div 
-              className="inline-block bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full px-5 py-2 mb-4"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
+      <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+          <div className="text-center">
+            <div className="inline-block bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full px-5 py-2 mb-4">
               <p className="font-bold text-xs uppercase tracking-wide">Our Products</p>
-            </motion.div>
-            <motion.h1 
-              className="text-4xl md:text-5xl font-black text-white mb-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
+            </div>
+            <h1 className="text-4xl md:text-5xl font-black text-white mb-4">
               Explore Global <span className="bg-gradient-to-r from-emerald-400 to-yellow-400 bg-clip-text text-transparent">Products</span>
-            </motion.h1>
-            <motion.p 
-              className="text-lg text-slate-300 max-w-2xl mx-auto"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-            >
-              Browse through 500+ verified products from trusted suppliers worldwide
-            </motion.p>
-          </AnimatedSection>
-        </div>
-      </div>
+            </h1>
+            <p className="text-lg text-slate-300 max-w-2xl mx-auto">
+              Discover premium products from verified suppliers worldwide
+            </p>
+          </div>
 
-      {/* Search Bar - Sticky */}
-      <motion.div 
-        className="bg-white py-6 sticky top-[60px] z-40 shadow-md border-b border-slate-200"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-4 items-center">
-            
-            {/* Mobile Filter Toggle */}
-            <motion.button 
-              onClick={() => setShowFilters(!showFilters)}
-              className="lg:hidden bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-3 rounded-xl flex items-center gap-2 font-semibold shadow-lg"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Filter size={18} />
-              Filters
-            </motion.button>
-
-            {/* Search Bar */}
-            <div className="flex-1">
-              <div className="relative">
-                <input 
-                  type="text" 
-                  placeholder="Search products, categories, suppliers..." 
-                  className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-5 py-3 pl-12 pr-24 text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"
-                />
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
-                <motion.button 
-                  className="absolute right-1.5 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-5 py-2 rounded-lg font-bold text-sm hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg hover:shadow-xl active:shadow-md"
-                >
-                  Search
-                </motion.button>
-              </div>
+          {/* Search Bar */}
+          <div className="mt-8 max-w-3xl mx-auto">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search products by name, category, or supplier..."
+                value={filters.search}
+                onChange={handleSearch}
+                className="w-full px-6 py-4 rounded-full text-slate-900 bg-white shadow-xl border-2 border-transparent focus:border-emerald-500 focus:outline-none pl-14 text-base"
+              />
+              <i className="fas fa-search absolute left-6 top-1/2 transform -translate-y-1/2 text-slate-400 text-lg"></i>
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
 
-      {/* Main Content with Sidebar */}
-      <div className="py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-8">
-            
-            {/* LEFT SIDEBAR - FILTERS */}
-            <div className={`${showFilters ? 'block' : 'hidden'} lg:block w-72 flex-shrink-0`}>
-              <div className="bg-white rounded-[25px] shadow-lg p-6 sticky top-32">
-                
-                {/* Filter Header */}
-                <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-200">
-                  <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                    <Filter className="text-emerald-500" size={20} />
-                    Filters
-                  </h3>
-                  <button className="text-sm text-emerald-600 font-semibold hover:text-emerald-700 transition-colors">Clear All</button>
-                </div>
-
-                {/* Price Range Filter */}
-                <div className="mb-7 pb-7 border-b border-slate-200">
-                  <h4 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <DollarSign className="text-emerald-500" size={16} />
-                    Price Range
-                  </h4>
-                  <div className="space-y-3">
-                    {[
-                      { label: 'Under $25', count: 120 },
-                      { label: '$25 - $50', count: 85 },
-                      { label: '$50 - $100', count: 92 },
-                      { label: 'Over $100', count: 45 }
-                    ].map((item, index) => (
-                      <label key={index} className="flex items-center gap-3 cursor-pointer group">
-                        <input type="checkbox" className="w-4 h-4 text-emerald-500 rounded border-slate-300 focus:ring-emerald-500" />
-                        <span className="text-sm text-slate-700 group-hover:text-emerald-600 transition-colors">{item.label}</span>
-                        <span className="text-xs text-slate-400 ml-auto">({item.count})</span>
-                      </label>
-                    ))}
-                  </div>
-                  
-                  {/* Custom Price Range */}
-                  <div className="mt-5 pt-5 border-t border-slate-200">
-                    <p className="text-xs text-slate-700 mb-4 font-semibold uppercase tracking-wider">Custom Range</p>
-                    <div className="flex gap-2 items-center w-full">
-                      <input 
-                        type="number" 
-                        placeholder="Min" 
-                        className="w-1/3 bg-slate-50 border-2 border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition-all placeholder-slate-400"
-                      />
-                      <span className="text-slate-400 font-semibold text-center flex-shrink-0">-</span>
-                      <input 
-                        type="number" 
-                        placeholder="Max" 
-                        className="w-1/3 bg-slate-50 border-2 border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition-all placeholder-slate-400"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Category Filter */}
-                <div className="mb-7 pb-7 border-b border-slate-200">
-                  <h4 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <LayoutGrid className="text-emerald-500" size={16} />
-                    Categories
-                  </h4>
-                  <div className="space-y-3">
-                    {[
-                      { label: 'Electronics', count: 156 },
-                      { label: 'Textiles', count: 98 },
-                      { label: 'Fashion', count: 124 },
-                      { label: 'Home Decor', count: 67 },
-                      { label: 'Machinery', count: 55 }
-                    ].map((item, index) => (
-                      <label key={index} className="flex items-center gap-3 cursor-pointer group">
-                        <input type="checkbox" className="w-4 h-4 text-emerald-500 rounded border-slate-300 focus:ring-emerald-500" />
-                        <span className="text-sm text-slate-700 group-hover:text-emerald-600 transition-colors">{item.label}</span>
-                        <span className="text-xs text-slate-400 ml-auto">({item.count})</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Rating Filter */}
-                <div className="mb-7 pb-7 border-b border-slate-200">
-                  <h4 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <Star className="text-emerald-500" size={16} />
-                    Supplier Rating
-                  </h4>
-                  <div className="space-y-3">
-                    {[
-                      { stars: 5, count: 45 },
-                      { stars: 4, count: 128 },
-                      { stars: 3, count: 256 }
-                    ].map((item, index) => (
-                      <label key={index} className="flex items-center gap-3 cursor-pointer group">
-                        <input type="checkbox" className="w-4 h-4 text-emerald-500 rounded border-slate-300 focus:ring-emerald-500" />
-                        <div className="flex items-center gap-1">
-                          {[...Array(item.stars)].map((_, i) => (
-                            <Star key={i} className="text-amber-400 fill-amber-400" size={12} />
-                          ))}
-                          {item.stars < 5 && [...Array(5 - item.stars)].map((_, i) => (
-                            <Star key={i} className="text-slate-300" size={12} />
-                          ))}
-                          {item.stars < 5 && <span className="text-xs text-slate-600 ml-1">& above</span>}
-                        </div>
-                        <span className="text-xs text-slate-400 ml-auto">({item.count})</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* MOQ Filter */}
-                <div className="mb-7 pb-7 border-b border-slate-200">
-                  <h4 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <Box className="text-emerald-500" size={16} />
-                    Min Order Quantity
-                  </h4>
-                  <div className="space-y-3">
-                    {['1-100 Units', '100-500 Units', '500+ Units'].map((item, index) => (
-                      <label key={index} className="flex items-center gap-3 cursor-pointer group">
-                        <input type="checkbox" className="w-4 h-4 text-emerald-500 rounded border-slate-300 focus:ring-emerald-500" />
-                        <span className="text-sm text-slate-700 group-hover:text-emerald-600 transition-colors">{item}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Country Filter */}
-                <div className="mb-6">
-                  <h4 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <Globe className="text-emerald-500" size={16} />
-                    Country of Origin
-                  </h4>
-                  <div className="space-y-3">
-                    {[
-                      { label: 'China', count: 234 },
-                      { label: 'India', count: 156 },
-                      { label: 'Vietnam', count: 89 },
-                      { label: 'Turkey', count: 67 }
-                    ].map((item, index) => (
-                      <label key={index} className="flex items-center gap-3 cursor-pointer group">
-                        <input type="checkbox" className="w-4 h-4 text-emerald-500 rounded border-slate-300 focus:ring-emerald-500" />
-                        <span className="text-sm text-slate-700 group-hover:text-emerald-600 transition-colors">{item.label}</span>
-                        <span className="text-xs text-slate-400 ml-auto">({item.count})</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Apply Filter Button */}
-                <button className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 rounded-xl font-bold text-sm hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
-                  Apply Filters
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Filters Sidebar */}
+          <div className="lg:w-1/4">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 sticky top-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <i className="fas fa-filter text-emerald-600"></i>
+                  Filters
+                </h3>
+                <button
+                  onClick={clearFilters}
+                  className="text-sm text-teal-600 hover:text-teal-700 font-semibold"
+                >
+                  Clear All
                 </button>
-
               </div>
-            </div>
 
-            {/* RIGHT CONTENT - Products */}
-            <div className="flex-1">
-              
-              {/* Sort & View Options */}
-              <motion.div 
-                className="bg-white rounded-[20px] shadow-md p-4 mb-6 flex flex-wrap gap-4 items-center justify-between"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <div className="flex items-center gap-3">
-                  <p className="text-sm text-slate-600 font-semibold">
-                    Showing <span className="text-emerald-600">1-{products.length}</span> of <span className="text-emerald-600">500+</span> products
-                  </p>
+              {/* Price Range */}
+              <div className="mb-6">
+                <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                  <i className="fas fa-dollar-sign text-emerald-600"></i>
+                  Price Range
+                </h4>
+                <div className="space-y-2">
+                  {[
+                    { label: 'Under $25', value: '0-25', count: 120 },
+                    { label: '$25 - $50', value: '25-50', count: 185 },
+                    { label: '$50 - $100', value: '50-100', count: 82 },
+                    { label: 'Over $100', value: '100-999999', count: 43 }
+                  ].map((range) => (
+                    <label key={range.value} className="flex items-center gap-2 cursor-pointer group">
+                      <input
+                        type="radio"
+                        name="priceRange"
+                        value={range.value}
+                        checked={filters.priceRange === range.value}
+                        onChange={(e) => handleFilterChange('priceRange', e.target.value)}
+                        className="w-4 h-4 text-emerald-600 focus:ring-emerald-500"
+                      />
+                      <span className="text-sm text-slate-600 group-hover:text-slate-900">{range.label}</span>
+                      <span className="text-xs text-slate-400 ml-auto">({range.count})</span>
+                    </label>
+                  ))}
                 </div>
-                
-                <div className="flex items-center gap-3">
-                  {/* Sort Dropdown */}
-                  <div className="relative">
-                    <select className="bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-2.5 pr-10 text-sm font-semibold text-slate-700 focus:outline-none focus:border-emerald-500 appearance-none cursor-pointer">
-                      <option>Sort by: Relevance</option>
-                      <option>Price: Low to High</option>
-                      <option>Price: High to Low</option>
-                      <option>Rating: High to Low</option>
-                      <option>Newest First</option>
-                      <option>MOQ: Low to High</option>
-                    </select>
+
+                {/* Custom Range */}
+                <div className="mt-4 pt-4 border-t border-slate-200">
+                  <p className="text-xs font-semibold text-slate-500 mb-2">CUSTOM RANGE</p>
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      value={filters.minPrice}
+                      onChange={(e) => handleFilterChange('minPrice', e.target.value)}
+                      className="w-1/2 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:border-emerald-500 focus:outline-none"
+                    />
+                    <span className="text-slate-400">-</span>
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      value={filters.maxPrice}
+                      onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
+                      className="w-1/2 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:border-emerald-500 focus:outline-none"
+                    />
                   </div>
-
-                  {/* View Toggle - Single Button */}
-                  <motion.button 
-                    onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-                    className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 shadow-lg hover:shadow-xl font-semibold text-sm transition-all"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {viewMode === 'grid' ? (
-                      <>
-                        <Grid3x3 size={18} />
-                        Grid View
-                      </>
-                    ) : (
-                      <>
-                        <List size={18} />
-                        List View
-                      </>
-                    )}
-                  </motion.button>
                 </div>
-              </motion.div>
+              </div>
 
-              {/* Active Filters */}
-              <motion.div 
-                className="flex flex-wrap gap-2 mb-6"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-              >
-                {['Electronics', '$25 - $50', '4★ & above'].map((filter, index) => (
-                  <motion.div 
-                    key={index} 
-                    className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 hover:bg-emerald-100 transition-colors"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.3 + index * 0.1 }}
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    {filter}
-                    <motion.button 
-                      className="hover:text-emerald-900 transition-colors"
-                      whileHover={{ scale: 1.2 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      ×
-                    </motion.button>
-                  </motion.div>
-                ))}
-              </motion.div>
+              {/* Categories */}
+              <div className="mb-6">
+                <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                  <i className="fas fa-th-large text-emerald-600"></i>
+                  Categories
+                </h4>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {categories.map((cat) => (
+                    <label key={cat._id} className="flex items-center gap-2 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={filters.category === cat._id}
+                        onChange={(e) => handleFilterChange('category', e.target.checked ? cat._id : '')}
+                        className="w-4 h-4 text-emerald-600 focus:ring-emerald-500 rounded"
+                      />
+                      <span className="text-sm text-slate-600 group-hover:text-slate-900">{cat.name}</span>
+                      <span className="text-xs text-slate-400 ml-auto">({cat.productCount || 0})</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
 
-              {/* Products Grid */}
-              <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'} gap-6`}>
-                
-                {products.map((product, index) => (
-                  <AnimatedSection key={product.id} variants={scaleIn} delay={0.1 + index * 0.05} className="h-full">
-                    <motion.div 
-                      className="bg-white border-2 border-slate-200 rounded-[25px] overflow-hidden hover:border-emerald-500 hover:shadow-xl transition-all duration-500 group h-full"
-                      whileHover={{ y: -8 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <div className="relative h-48 bg-slate-100 overflow-hidden">
-                        <motion.img 
-                          src={product.image} 
-                          alt={product.name} 
-                          className="w-full h-full object-cover"
-                          whileHover={{ scale: 1.1 }}
-                          transition={{ duration: 0.5 }}
-                        />
-                        {product.featured && (
-                          <motion.div 
-                            className="absolute top-3 right-3 bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg"
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 }}
-                          >
-                            Featured
-                          </motion.div>
-                        )}
-                        {product.hotDeal && (
-                          <motion.div 
-                            className="absolute top-3 right-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg"
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 }}
-                          >
-                            Hot Deal
-                          </motion.div>
-                        )}
-                        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-slate-900 px-3 py-1 rounded-full text-xs font-bold">
-                          MOQ: {product.moq}
-                        </div>
+              {/* Supplier Rating */}
+              <div className="mb-6">
+                <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                  <i className="fas fa-star text-emerald-600"></i>
+                  Supplier Rating
+                </h4>
+                <div className="space-y-2">
+                  {[
+                    { label: '5 stars', value: '5', count: 45 },
+                    { label: '4 & above', value: '4', count: 128 },
+                    { label: '3 & above', value: '3', count: 238 }
+                  ].map((rating) => (
+                    <label key={rating.value} className="flex items-center gap-2 cursor-pointer group">
+                      <input
+                        type="radio"
+                        name="supplierRating"
+                        value={rating.value}
+                        checked={filters.supplierRating === rating.value}
+                        onChange={(e) => handleFilterChange('supplierRating', e.target.value)}
+                        className="w-4 h-4 text-emerald-600 focus:ring-emerald-500"
+                      />
+                      <div className="flex items-center gap-1">
+                        {[...Array(parseInt(rating.value))].map((_, i) => (
+                          <i key={i} className="fas fa-star text-amber-400 text-xs"></i>
+                        ))}
                       </div>
-                      <div className="p-5">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className={`${getCategoryColorClass(product.categoryColor)} px-2.5 py-1 rounded-lg text-xs font-bold`}>
-                            {product.category}
-                          </span>
-                          <div className="flex items-center gap-1 text-amber-500 text-xs ml-auto">
-                            <Star className="fill-amber-400" size={14} />
-                            <span className="font-bold text-slate-900">{product.rating}</span>
-                            <span className="text-slate-400">({product.reviews})</span>
+                      <span className="text-sm text-slate-600 group-hover:text-slate-900">{rating.label}</span>
+                      <span className="text-xs text-slate-400 ml-auto">({rating.count})</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Min Order Quantity */}
+              <div className="mb-6">
+                <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                  <i className="fas fa-boxes text-emerald-600"></i>
+                  Min Order Quantity
+                </h4>
+                <div className="space-y-2">
+                  {[
+                    { label: '1-100 Units', value: '1-100' },
+                    { label: '100-500 Units', value: '100-500' },
+                    { label: '500+ Units', value: '500-999999' }
+                  ].map((moq) => (
+                    <label key={moq.value} className="flex items-center gap-2 cursor-pointer group">
+                      <input
+                        type="radio"
+                        name="moqRange"
+                        value={moq.value}
+                        checked={filters.moqRange === moq.value}
+                        onChange={(e) => handleFilterChange('moqRange', e.target.value)}
+                        className="w-4 h-4 text-emerald-600 focus:ring-emerald-500"
+                      />
+                      <span className="text-sm text-slate-600 group-hover:text-slate-900">{moq.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Country of Origin */}
+              <div className="mb-6">
+                <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                  <i className="fas fa-globe text-emerald-600"></i>
+                  Country of Origin
+                </h4>
+                <div className="space-y-2">
+                  {[
+                    { label: 'China', value: 'China', count: 234 },
+                    { label: 'India', value: 'India', count: 158 },
+                    { label: 'Vietnam', value: 'Vietnam', count: 49 },
+                    { label: 'Turkey', value: 'Turkey', count: 67 }
+                  ].map((country) => (
+                    <label key={country.value} className="flex items-center gap-2 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={filters.country === country.value}
+                        onChange={(e) => handleFilterChange('country', e.target.checked ? country.value : '')}
+                        className="w-4 h-4 text-emerald-600 focus:ring-emerald-500 rounded"
+                      />
+                      <span className="text-sm text-slate-600 group-hover:text-slate-900">{country.label}</span>
+                      <span className="text-xs text-slate-400 ml-auto">({country.count})</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Apply Filters Button */}
+              <button
+                onClick={handleApplyFilters}
+                className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 rounded-lg font-bold hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg"
+              >
+                Apply Filters
+              </button>
+            </div>
+          </div>
+
+          {/* Products Grid */}
+          <div className="lg:w-3/4">
+            {loading ? (
+              <div className="text-center py-12">
+                <i className="fas fa-spinner fa-spin text-4xl text-emerald-600"></i>
+                <p className="mt-4 text-slate-600">Loading products...</p>
+              </div>
+            ) : products.length === 0 ? (
+              <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-slate-200">
+                <i className="fas fa-box-open text-6xl text-slate-300 mb-4"></i>
+                <h3 className="text-xl font-bold text-slate-700 mb-2">No Products Found</h3>
+                <p className="text-slate-500">Try adjusting your filters or search terms</p>
+              </div>
+            ) : (
+              <>
+                {/* Results Header */}
+                <div className="flex items-center justify-between mb-6">
+                  <p className="text-slate-600">
+                    Showing <span className="font-semibold text-slate-900">{products.length}</span> of{' '}
+                    <span className="font-semibold text-slate-900">{pagination.total}</span> products
+                  </p>
+                  <select 
+                    value={sortBy}
+                    onChange={handleSortChange}
+                    className="px-4 py-2 border border-slate-300 rounded-lg text-sm focus:border-emerald-500 focus:outline-none"
+                  >
+                    <option value="latest">Sort by: Latest</option>
+                    <option value="priceAsc">Price: Low to High</option>
+                    <option value="priceDesc">Price: High to Low</option>
+                    <option value="popular">Most Popular</option>
+                  </select>
+                </div>
+
+                {/* Products Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {products.map((product) => (
+                    <div key={product._id} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl transition-all duration-300 group">
+                      {/* Product Image */}
+                      <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+                        <img
+                          src={product.images[0]?.url || 'https://via.placeholder.com/400x300?text=No+Image'}
+                          alt={product.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        
+                        {/* Badges */}
+                        <div className="absolute top-3 left-3 flex flex-col gap-2">
+                          {product.isFeatured && (
+                            <span className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                              Featured
+                            </span>
+                          )}
+                          {product.badges?.includes('Hot Deal') && (
+                            <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                              Hot Deal
+                            </span>
+                          )}
+                          {product.stock < 10 && product.stock > 0 && (
+                            <span className="bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                              Low Stock
+                            </span>
+                          )}
+                        </div>
+
+                        {/* MOQ Badge */}
+                        <div className="absolute top-3 right-3">
+                          <div className="bg-white/95 backdrop-blur-sm text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-slate-200">
+                            MOQ: {product.moq}
                           </div>
                         </div>
-                        <h3 className="text-base font-bold text-slate-900 mb-2 line-clamp-2 group-hover:text-emerald-600 transition-colors">
+                      </div>
+
+                      {/* Product Info */}
+                      <div className="p-4">
+                        {/* Category */}
+                        <div className="mb-2">
+                          <span className="inline-block bg-emerald-100 text-emerald-700 text-xs font-semibold px-2 py-1 rounded">
+                            {product.category?.name || 'Uncategorized'}
+                          </span>
+                        </div>
+
+                        {/* Product Name */}
+                        <h3 className="font-bold text-slate-900 mb-2 line-clamp-2 text-base">
                           {product.name}
                         </h3>
-                        <p className="text-xs text-slate-600 mb-4 line-clamp-2">{product.description}</p>
-                        
-                        <div className="flex items-center gap-2 mb-4 pb-4 border-b border-slate-200">
-                          <div className={`w-8 h-8 bg-gradient-to-br ${getSupplierGradient(product.categoryColor)} rounded-lg flex items-center justify-center`}>
-                            <Building className="text-white" size={16} />
+
+                        {/* Short Description */}
+                        <p className="text-sm text-slate-600 mb-3 line-clamp-2">
+                          {product.shortDescription || product.description}
+                        </p>
+
+                        {/* Supplier Info */}
+                        {product.supplier && (
+                          <div className="flex items-center gap-2 mb-3 p-2 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg border border-emerald-100">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center flex-shrink-0">
+                              <i className="fas fa-building text-white text-xs"></i>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-slate-900 truncate">{product.supplier.companyName}</p>
+                              <div className="flex items-center gap-1">
+                                <i className="fas fa-map-marker-alt text-emerald-600 text-[10px]"></i>
+                                <p className="text-[10px] text-slate-600">{product.supplier.country} • Verified</p>
+                                <i className="fas fa-check-circle text-emerald-600 text-[10px]"></i>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex-1">
-                            <p className="text-xs font-bold text-slate-900">{product.supplier}</p>
-                            <p className="text-[10px] text-slate-500">{product.country} • Verified</p>
+                        )}
+
+                        {/* Rating (if available) */}
+                        {product.rating > 0 && (
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="flex items-center gap-1">
+                              {[...Array(5)].map((_, i) => (
+                                <i
+                                  key={i}
+                                  className={`fas fa-star text-xs ${
+                                    i < Math.floor(product.rating) ? 'text-amber-400' : 'text-slate-300'
+                                  }`}
+                                ></i>
+                              ))}
+                            </div>
+                            <span className="text-sm font-semibold text-slate-700">{product.rating}</span>
+                            <span className="text-xs text-slate-500">({product.totalReviews})</span>
                           </div>
-                          {product.verified && <CheckCircle className="text-emerald-500" size={16} />}
+                        )}
+
+                        {/* Price Range */}
+                        <div className="mb-4">
+                          <p className="text-xs text-slate-500 mb-1">PRICE RANGE</p>
+                          <p className="text-xl font-black text-emerald-600">
+                            ${product.price?.min}-{product.price?.max}
+                          </p>
                         </div>
 
-                        <div className="flex items-center justify-between mb-4">
-                          <div>
-                            <p className="text-[10px] text-slate-500 uppercase font-semibold">Price Range</p>
-                            <p className="text-xl font-black text-emerald-600">{product.price}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex gap-2">
-                          <motion.button 
-                            className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-2.5 rounded-xl font-bold text-xs hover:shadow-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 flex items-center justify-center gap-1"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
+                        {/* Action Buttons */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            onClick={() => navigate(`/products/${product._id}`)}
+                            className="bg-gradient-to-r from-indigo-500 to-blue-600 text-white py-2.5 rounded-lg font-semibold hover:from-indigo-600 hover:to-blue-700 transition-all shadow-md flex items-center justify-center gap-2"
                           >
-                            <Eye size={14} />
-                            Details
-                          </motion.button>
-                          <motion.button 
-                            className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-3 py-2.5 rounded-xl font-bold text-xs hover:shadow-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 flex items-center justify-center gap-1"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
+                            <i className="fas fa-eye"></i>
+                            <span>Details</span>
+                          </button>
+                          <button
+                            onClick={() => toast.success('Contact feature coming soon!')}
+                            className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-2.5 rounded-lg font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md flex items-center justify-center gap-2"
                           >
-                            <Phone size={14} />
-                            Contact
-                          </motion.button>
+                            <i className="fas fa-phone"></i>
+                            <span>Contact</span>
+                          </button>
                         </div>
                       </div>
-                    </motion.div>
-                  </AnimatedSection>
-                ))}
+                    </div>
+                  ))}
+                </div>
 
-              </div>
-
-              {/* Pagination */}
-              <motion.div 
-                className="mt-12 flex justify-center items-center gap-2"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.5 }}
-              >
-                <motion.button 
-                  className="w-10 h-10 bg-white border-2 border-slate-200 rounded-lg flex items-center justify-center hover:border-emerald-500 hover:text-emerald-600 transition-all font-bold"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  ‹
-                </motion.button>
-                <motion.button 
-                  className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg font-bold shadow-lg"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  1
-                </motion.button>
-                <motion.button 
-                  className="w-10 h-10 bg-white border-2 border-slate-200 rounded-lg hover:border-emerald-500 hover:text-emerald-600 transition-all font-bold"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  2
-                </motion.button>
-                <motion.button 
-                  className="w-10 h-10 bg-white border-2 border-slate-200 rounded-lg hover:border-emerald-500 hover:text-emerald-600 transition-all font-bold"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  3
-                </motion.button>
-                <span className="text-slate-400 font-bold">...</span>
-                <motion.button 
-                  className="w-10 h-10 bg-white border-2 border-slate-200 rounded-lg hover:border-emerald-500 hover:text-emerald-600 transition-all font-bold"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  42
-                </motion.button>
-                <motion.button 
-                  className="w-10 h-10 bg-white border-2 border-slate-200 rounded-lg flex items-center justify-center hover:border-emerald-500 hover:text-emerald-600 transition-all font-bold"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  ›
-                </motion.button>
-              </motion.div>
-
-            </div>
+                {/* Pagination */}
+                {pagination.pages > 1 && (
+                  <div className="mt-8 flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => handleFilterChange('page', Math.max(1, filters.page - 1))}
+                      disabled={filters.page === 1}
+                      className="px-4 py-2 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <i className="fas fa-chevron-left"></i>
+                    </button>
+                    
+                    {[...Array(pagination.pages)].map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleFilterChange('page', i + 1)}
+                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                          filters.page === i + 1
+                            ? 'bg-emerald-600 text-white'
+                            : 'border border-slate-300 text-slate-700 hover:bg-slate-50'
+                        }`}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+                    
+                    <button
+                      onClick={() => handleFilterChange('page', Math.min(pagination.pages, filters.page + 1))}
+                      disabled={filters.page === pagination.pages}
+                      className="px-4 py-2 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <i className="fas fa-chevron-right"></i>
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
-
     </div>
   );
 };

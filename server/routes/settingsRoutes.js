@@ -9,8 +9,15 @@ const {
   updateBusinessSettings,
   updateNotificationSettings,
   updateSEOSettings,
+  updateSecuritySettings,
   toggleMaintenanceMode,
-  updateLegalDocuments
+  updateLegalDocuments,
+  uploadLogo,
+  uploadFavicon,
+  resetToDefault,
+  getSystemInfo,
+  testEmailConfig,
+  testPaymentConfig
 } = require('../controllers/settingsController');
 const { protect, authorize } = require('../middleware/auth');
 
@@ -31,7 +38,16 @@ router.put('/email', updateEmailSettings);
 router.put('/business', updateBusinessSettings);
 router.put('/notifications', updateNotificationSettings);
 router.put('/seo', updateSEOSettings);
+router.put('/security', updateSecuritySettings);
 router.put('/maintenance', toggleMaintenanceMode);
 router.put('/legal', updateLegalDocuments);
+router.put('/reset', resetToDefault);
+
+router.post('/upload-logo', uploadLogo);
+router.post('/upload-favicon', uploadFavicon);
+
+router.get('/system-info', getSystemInfo);
+router.post('/test-email', testEmailConfig);
+router.post('/test-payment', testPaymentConfig);
 
 module.exports = router;

@@ -82,7 +82,18 @@ const SignupPage = () => {
 
     setLoading(true);
     try {
-      await dispatch(register(formData)).unwrap();
+      const result = await dispatch(register(formData)).unwrap();
+      
+      // Log OTP in console for development/testing
+      if (result.devOTP) {
+        console.log('\n' + '='.repeat(60));
+        console.log('🔐 DEVELOPMENT OTP FOR TESTING:');
+        console.log('📧 Email:', formData.email);
+        console.log('🔑 OTP Code:', result.devOTP);
+        console.log('⏱️  Valid for 15 minutes');
+        console.log('='.repeat(60) + '\n');
+      }
+      
       toast.success('Registration successful! Check your email for the verification code.');
       // Always redirect to verification page
       navigate('/verify-email', { state: { email: formData.email } });

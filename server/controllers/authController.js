@@ -56,13 +56,30 @@ exports.register = asyncHandler(async (req, res, next) => {
     console.log('📧 Sending verification email...');
     await sendVerificationEmail(email, name, verificationCode);
     console.log('✅ Verification email sent successfully');
+    
+    // Log OTP for development/testing purposes
+    console.log('\n' + '='.repeat(60));
+    console.log('🔐 DEVELOPMENT OTP FOR TESTING:');
+    console.log('📧 Email:', email);
+    console.log('🔑 OTP Code:', verificationCode);
+    console.log('⏱️  Valid for 15 minutes');
+    console.log('='.repeat(60) + '\n');
+    
     console.log('===== REGISTRATION COMPLETED =====\n');
     
-    res.status(201).json({
+    // Include OTP in response for development (remove in production)
+    const responseData = {
       success: true,
       message: 'Registration successful! Please check your email for verification code.',
       email: pendingUser.email
-    });
+    };
+    
+    // Add OTP to response in development mode
+    if (process.env.NODE_ENV === 'development') {
+      responseData.devOTP = verificationCode;
+    }
+    
+    res.status(201).json(responseData);
   } catch (error) {
     console.log('❌ Email sending failed:', error.message);
     console.log('===== REGISTRATION FAILED =====\n');
@@ -345,14 +362,29 @@ exports.resendCode = asyncHandler(async (req, res, next) => {
   const verificationCode = pendingUser.generateVerificationCode();
   await pendingUser.save();
 
+  // Log OTP for development/testing purposes
+  console.log('\n' + '='.repeat(60));
+  console.log('🔐 DEVELOPMENT OTP FOR TESTING (RESEND):');
+  console.log('📧 Email:', email);
+  console.log('🔑 OTP Code:', verificationCode);
+  console.log('⏱️  Valid for 15 minutes');
+  console.log('='.repeat(60) + '\n');
+
   // Send verification email
   try {
     await sendVerificationEmail(email, pendingUser.name, verificationCode);
     
-    res.status(200).json({
+    // Include OTP in response for development mode
+    const responseData = {
       success: true,
       message: 'Verification code resent successfully'
-    });
+    };
+    
+    if (process.env.NODE_ENV === 'development') {
+      responseData.devOTP = verificationCode;
+    }
+    
+    res.status(200).json(responseData);
   } catch (error) {
     return next(new ErrorResponse('Unable to send verification email. Please try again.', 500));
   }

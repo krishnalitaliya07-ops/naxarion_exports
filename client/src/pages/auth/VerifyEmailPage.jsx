@@ -121,6 +121,16 @@ const VerifyEmailPage = () => {
       const response = await apiconnector('POST', authEndpoints.RESEND_CODE_API, { email });
       
       if (response.data.success) {
+        // Log OTP in console for development/testing
+        if (response.data.devOTP) {
+          console.log('\n' + '='.repeat(60));
+          console.log('🔐 DEVELOPMENT OTP FOR TESTING (RESEND):');
+          console.log('📧 Email:', email);
+          console.log('🔑 OTP Code:', response.data.devOTP);
+          console.log('⏱️  Valid for 15 minutes');
+          console.log('='.repeat(60) + '\n');
+        }
+        
         toast.success('Verification code resent!');
         setTimer(60);
         setCanResend(false);

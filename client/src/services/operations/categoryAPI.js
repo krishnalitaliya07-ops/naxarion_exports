@@ -6,9 +6,11 @@ const {
   GET_ALL_CATEGORIES_API,
   GET_CATEGORY_BY_ID_API,
   GET_CATEGORY_STATS_API,
+  GET_ADMIN_CATEGORIES_API,
   CREATE_CATEGORY_API,
   UPDATE_CATEGORY_API,
   DELETE_CATEGORY_API,
+  TOGGLE_CATEGORY_ACTIVE_API,
 } = categoryEndpoints;
 
 // Get all categories
@@ -125,6 +127,48 @@ export const deleteCategory = async (id, token) => {
   } catch (error) {
     console.error("DELETE CATEGORY API ERROR:", error);
     toast.error(error.response?.data?.message || "Failed to delete category");
+    throw error;
+  } finally {
+    toast.dismiss(toastId);
+  }
+};
+
+// Get all categories (admin with pagination)
+export const getAdminCategories = async (token, params = {}) => {
+  try {
+    const response = await apiconnector("GET", GET_ADMIN_CATEGORIES_API, null, {
+      Authorization: `Bearer ${token}`,
+    }, params);
+
+    if (!response.data.success) {
+      throw new Error(response.data.message);
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error("GET ADMIN CATEGORIES API ERROR:", error);
+    toast.error(error.response?.data?.message || "Failed to fetch categories");
+    throw error;
+  }
+};
+
+// Toggle category active status
+export const toggleCategoryActive = async (id, token) => {
+  const toastId = toast.loading("Updating category status...");
+  try {
+    const response = await apiconnector("PATCH", TOGGLE_CATEGORY_ACTIVE_API(id), null, {
+      Authorization: `Bearer ${token}`,
+    });
+
+    if (!response.data.success) {
+      throw new Error(response.data.message);
+    }
+
+    toast.success(response.data.message);
+    return response.data;
+  } catch (error) {
+    console.error("TOGGLE CATEGORY ACTIVE API ERROR:", error);
+    toast.error(error.response?.data?.message || "Failed to update category status");
     throw error;
   } finally {
     toast.dismiss(toastId);

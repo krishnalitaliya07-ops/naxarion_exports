@@ -34,11 +34,19 @@ exports.getProducts = asyncHandler(async (req, res, next) => {
   // Apply pagination
   query = query.skip(req.startIndex).limit(req.limit);
 
-  const products = await query;
+  let products = await query;
+
+  // Filter by supplier country if specified
+  if (req.countryFilter) {
+    products = products.filter(p => p.supplier && p.supplier.country === req.countryFilter);
+  }
 
   res.status(200).json({
     success: true,
     count: products.length,
+    page: req.pagination.current,
+    pages: req.pagination.totalPages,
+    total: req.pagination.totalResults,
     pagination: req.pagination,
     data: products
   });
@@ -51,14 +59,7 @@ exports.getProduct = asyncHandler(async (req, res, next) => {
   const product = await Product.findById(req.params.id)
     .populate('category', 'name icon')
     .populate('supplier', 'companyName country rating email phone')
-    .populate({
-      path: 'reviews',
-      select: 'rating comment user createdAt',
-      populate: {
-        path: 'user',
-        select: 'name avatar'
-      }
-    });
+    .populate('brand', 'name logo');
 
   if (!product) {
     return next(new ErrorResponse(`Product not found with id of ${req.params.id}`, 404));
@@ -218,6 +219,26 @@ exports.updateStock = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
+    data: product
+  });
+});
+
+// @desc    Update product summary
+// @route   PUT /api/products/:id/summary
+// @access  Private/Admin
+exports.updateProductSummary = asyncHandler(async (req, res, next) => {
+  const product = await Product.findById(req.params.id);
+
+  if (!product) {
+    return next(new ErrorResponse(`Product not found with id of ${req.params.id}`, 404));
+  }
+
+  product.summary = req.body.summary;
+  await product.save();
+
+  res.status(200).json({
+    success: true,
+    message: 'Product summary updated successfully',
     data: product
   });
 });

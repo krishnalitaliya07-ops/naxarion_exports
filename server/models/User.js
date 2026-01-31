@@ -30,6 +30,11 @@ const userSchema = new mongoose.Schema({
     enum: ['buyer', 'supplier', 'admin', 'importer', 'exporter', 'customer'],
     default: 'customer'
   },
+  adminRole: {
+    type: String,
+    enum: ['super-admin', 'manager', 'cto', 'hr', 'sales', 'support', 'accountant', 'labour', null],
+    default: null
+  },
   phone: {
     type: String,
     trim: true

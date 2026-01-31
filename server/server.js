@@ -10,19 +10,16 @@ const xss = require('xss');
 const hpp = require('hpp');
 const fileUpload = require('express-fileupload');
 const session = require('express-session');
+const mongoose = require('mongoose');
 const passport = require('./config/passport');
 const connectDB = require('./config/database');
 const { errorHandler } = require('./middleware/error');
-const { startCleanupJob } = require('./utils/cleanup');
 
 // Load environment variables
 dotenv.config();
 
 // Connect to database
 connectDB();
-
-// Start cleanup job for unverified users
-startCleanupJob();
 
 const app = express();
 
@@ -54,6 +51,13 @@ app.use('/api/', limiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Request timeout middleware
+app.use((req, res, next) => {
+  req.setTimeout(30000); // 30 seconds
+  res.setTimeout(30000);
+  next();
+});
+
 // Cookie parser
 app.use(cookieParser());
 
@@ -63,16 +67,22 @@ app.use(fileUpload({
   tempFileDir: '/tmp/'
 }));
 
-// CORS
+// CORS - Allow requests from frontend
 app.use(cors({
-  origin: true,
-  credentials: true
+  origin: ['http://localhost:3000', 'http://localhost:5173'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range']
 }));
 
 // Logging
 if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
+  app.use(morgan('dev')); 
 }
+
+// Handle preflight requests
+app.options('*', cors());
 
 // Routes
 app.get('/', (req, res) => {
@@ -114,13 +124,51 @@ app.use('/api/contacts', require('./routes/contactRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
+app.use('/api/reports', require('./routes/reportRoutes')); // Report routes
 app.use('/api/admin', require('./routes/adminRoutes')); // Admin routes
+app.use('/api/admin/brands', require('./routes/brandRoutes')); // Brand routes
 
 // Error handler middleware (must be last)
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err, promise) => {
+  console.error(`❌ Unhandled Rejection: ${err.message}`);
+  console.error(err.stack);
+  // Don't exit - just log the error to keep server running
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error(`❌ Uncaught Exception: ${err.message}`);
+  console.error(err.stack);
+  // Log but don't exit in development
+  if (process.env.NODE_ENV === 'production') {
+    process.exit(1);
+  }
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('👋 SIGTERM signal received: closing HTTP server');
+  server.close(() => {
+    console.log('✅ HTTP server closed');
+    mongoose.connection.close();
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('\n👋 SIGINT signal received: closing HTTP server');
+  server.close(() => {
+    console.log('✅ HTTP server closed');
+    mongoose.connection.close();
+    process.exit(0);
+  });
 });

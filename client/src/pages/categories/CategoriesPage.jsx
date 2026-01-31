@@ -278,7 +278,7 @@ const CategoriesPage = () => {
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <AnimatedSection variants={scaleIn} className="text-center">
-            <div className="inline-flex items-center gap-2 bg-emerald-500 rounded-full px-3 py-1 mb-3">
+            <div className="inline-flex items-center gap-2 bg-emerald-500 rounded-full px-3 py-2 mb-3">
               <Zap className="w-3 h-3 text-white" />
               <span className="text-white font-bold text-xs">BROWSE CATEGORIES</span>
             </div>
@@ -393,7 +393,7 @@ const CategoriesPage = () => {
             </motion.div>
           </motion.div>
 
-          {/* Grid */}
+      {/* Grid */}
           <motion.div 
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
             variants={staggerContainer}
@@ -407,39 +407,44 @@ const CategoriesPage = () => {
                 <motion.div
                   key={category.id}
                   variants={fadeInUp}
+                  whileHover={{ y: -8 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 >
                   <Link
                     to="/products"
-                    className="group block bg-white rounded-xl border border-slate-200 hover:border-emerald-500 hover:shadow-2xl shadow-lg transition-all duration-500 overflow-hidden transform hover:-translate-y-2 hover:ring-4 hover:ring-emerald-500/10"
+                    className="group block bg-white rounded-xl border border-slate-200 hover:border-emerald-500 hover:shadow-2xl shadow-lg transition-all duration-500 overflow-hidden hover:ring-4 hover:ring-emerald-500/10 h-full"
                   >
                     {/* Card Header with Gradient */}
-                    <div className={`bg-gradient-to-br ${category.gradient} p-4 relative overflow-hidden`}>
-                      <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
+                    <div className={`bg-gradient-to-br ${category.gradient} p-5 relative overflow-hidden`}>
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-700"></div>
+                      <div className="absolute bottom-0 left-0 w-16 h-16 bg-black/10 rounded-full -ml-8 -mb-8 group-hover:scale-150 transition-transform duration-700"></div>
                       <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       
                       {category.badge && (
-                        <div className={`absolute top-2 right-2 ${category.badge.color} backdrop-blur-sm px-2 py-0.5 rounded-md`}>
-                          <span className="text-white text-[9px] font-bold">{category.badge.text}</span>
+                        <div className={`absolute top-2 right-2 ${category.badge.color} backdrop-blur-sm px-2.5 py-1 rounded-lg shadow-lg animate-pulse`}>
+                          <span className="text-white text-[10px] font-bold tracking-wide">{category.badge.text}</span>
                         </div>
                       )}
                       
-                      <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <IconComponent className="text-white" size={20} />
+                      <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
+                        <IconComponent className="text-white" size={22} />
                       </div>
                     </div>
 
                     {/* Card Body */}
-                    <div className="p-4">
-                      <h3 className="text-base font-bold text-slate-900 mb-1 group-hover:text-emerald-600 transition-colors">
+                    <div className="p-5">
+                      <h3 className="text-base font-bold text-slate-900 mb-2 group-hover:text-emerald-600 transition-colors duration-300">
                         {category.name}
                       </h3>
-                      <p className="text-xs text-slate-600 mb-4">{category.description}</p>
+                      <p className="text-xs text-slate-600 mb-4 leading-relaxed">{category.description}</p>
                       
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-slate-500">
+                      <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                        <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-full group-hover:bg-emerald-100 group-hover:text-emerald-700 transition-all duration-300">
                           {category.productCount.toLocaleString()} Products
                         </span>
-                        <ArrowRight className="text-slate-400 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" size={16} />
+                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-emerald-500 transition-all duration-300">
+                          <ArrowRight className="text-slate-400 group-hover:text-white group-hover:translate-x-0.5 transition-all duration-300" size={16} />
+                        </div>
                       </div>
                     </div>
                   </Link>
@@ -447,42 +452,261 @@ const CategoriesPage = () => {
               );
             })}
           </motion.div>
+          {/* Why Choose Our Products Section */}
+          {filteredCategories.length > 0 && (
+            <AnimatedSection variants={fadeInUp} className="mt-12 mb-8 bg-gradient-to-br from-emerald-50/50 via-teal-50/30 to-cyan-50/50 rounded-2xl p-6 md:p-8 shadow-xl border border-emerald-200/30 backdrop-blur-sm relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-teal-500/5"></div>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-emerald-400/10 to-transparent rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-cyan-400/10 to-transparent rounded-full blur-3xl"></div>
+              
+              <div className="relative z-10">
+                <div className="text-center mb-8">
+                  <div className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full px-4 py-1.5 mb-4 shadow-lg">
+                    <Star className="w-4 h-4 text-white" />
+                    <span className="text-white font-bold text-xs">WHY CHOOSE OUR PRODUCTS</span>
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-3">
+                    Industry-Leading <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Product Selection</span>
+                  </h2>
+                  <p className="text-slate-600 max-w-2xl mx-auto">
+                    Access thousands of verified products across multiple industries with competitive pricing and reliable shipping
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <motion.div 
+                    className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-200/50 hover:shadow-xl hover:shadow-emerald-200/50 transition-all duration-300 group relative overflow-hidden"
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-100/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative z-10">
+                      <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                        <TrendingUp className="text-white" size={24} />
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-900 mb-2">Verified Suppliers</h3>
+                      <p className="text-sm text-slate-600">
+                        All suppliers are thoroughly vetted to ensure quality, reliability, and compliance with international standards
+                      </p>
+                    </div>
+                  </motion.div>
 
-          {filteredCategories.length === 0 && (
-            <AnimatedSection variants={scaleIn} className="text-center py-16">
-              <div className="text-slate-400 mb-4">
-                <Search size={48} className="mx-auto" />
+                  <motion.div 
+                    className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-200/50 hover:shadow-xl hover:shadow-blue-200/50 transition-all duration-300 group relative overflow-hidden"
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-100/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative z-10">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                        <Zap className="text-white" size={24} />
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-900 mb-2">Competitive Pricing</h3>
+                      <p className="text-sm text-slate-600">
+                        Get access to factory-direct pricing with volume discounts and flexible payment terms for bulk orders
+                      </p>
+                    </div>
+                  </motion.div>
+
+                  <motion.div 
+                    className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200/50 hover:shadow-xl hover:shadow-purple-200/50 transition-all duration-300 group relative overflow-hidden"
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-100/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative z-10">
+                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                        <Star className="text-white" size={24} />
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-900 mb-2">Quality Assurance</h3>
+                      <p className="text-sm text-slate-600">
+                        Every product undergoes rigorous quality checks before shipment to meet your exact specifications
+                      </p>
+                    </div>
+                  </motion.div>
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">No categories found</h3>
-              <p className="text-slate-600">Try adjusting your search or filters</p>
+            </AnimatedSection>
+          )}
+          {filteredCategories.length === 0 && (
+            <AnimatedSection variants={scaleIn} className="text-center py-20">
+              <motion.div 
+                className="text-slate-300 mb-6"
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+              >
+                <Search size={64} className="mx-auto" />
+              </motion.div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-3">No categories found</h3>
+              <p className="text-slate-600 mb-6">Try adjusting your search or filters</p>
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setActiveFilter('all');
+                }}
+                className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-3 rounded-lg font-semibold hover:from-emerald-600 hover:to-teal-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                Clear Filters
+              </button>
+            </AnimatedSection>
+          )}
+
+          {/* Navigation Tips Section */}
+          {filteredCategories.length > 0 && (
+            <AnimatedSection variants={fadeInUp} className="mt-12 bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 rounded-2xl p-8 border border-blue-200/50 shadow-lg">
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-slate-900 mb-2">💡 Quick Tips for Better Results</h3>
+                <p className="text-sm text-slate-600">Maximize your product discovery experience</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-blue-100">
+                  <div className="text-2xl mb-2">🔍</div>
+                  <h4 className="font-bold text-sm text-slate-900 mb-1">Use Search</h4>
+                  <p className="text-xs text-slate-600">Type keywords to quickly find specific categories</p>
+                </div>
+                <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-blue-100">
+                  <div className="text-2xl mb-2">🏷️</div>
+                  <h4 className="font-bold text-sm text-slate-900 mb-1">Filter Smart</h4>
+                  <p className="text-xs text-slate-600">Use filters to view popular or trending categories</p>
+                </div>
+                <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-blue-100">
+                  <div className="text-2xl mb-2">📊</div>
+                  <h4 className="font-bold text-sm text-slate-900 mb-1">Check Count</h4>
+                  <p className="text-xs text-slate-600">Product count indicates availability in each category</p>
+                </div>
+                <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-blue-100">
+                  <div className="text-2xl mb-2">⚡</div>
+                  <h4 className="font-bold text-sm text-slate-900 mb-1">Watch Badges</h4>
+                  <p className="text-xs text-slate-600">Hot, Top, and Trending badges mark best categories</p>
+                </div>
+              </div>
             </AnimatedSection>
           )}
         </div>
       </div>
 
+      {/* Featured Categories Spotlight */}
+      <div className="py-12 bg-gradient-to-br from-slate-50 via-white to-emerald-50/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <AnimatedSection variants={fadeInUp} className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full px-4 py-1.5 mb-4">
+              <Sparkles className="w-4 h-4 text-white" />
+              <span className="text-white font-bold text-xs">FEATURED SPOTLIGHT</span>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-3">
+              Most Popular <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">This Month</span>
+            </h2>
+            <p className="text-slate-600 max-w-2xl mx-auto">
+              Discover our trending categories with the highest demand and best supplier offerings
+            </p>
+          </AnimatedSection>
+
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+          >
+            {categories.filter(cat => cat.trending || cat.popular).slice(0, 3).map((category) => {
+              const IconComponent = category.icon;
+              return (
+                <motion.div
+                  key={category.id}
+                  variants={scaleIn}
+                  whileHover={{ scale: 1.03, rotateY: 5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <Link
+                    to="/products"
+                    className="group block bg-gradient-to-br from-white to-slate-50 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border-2 border-slate-200 hover:border-emerald-400"
+                  >
+                    <div className={`bg-gradient-to-br ${category.gradient} p-8 relative overflow-hidden`}>
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.2),transparent)]"></div>
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+                      <div className="relative z-10">
+                        <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
+                          <IconComponent className="text-white" size={32} />
+                        </div>
+                        <h3 className="text-xl font-black text-white mb-2">{category.name}</h3>
+                        <p className="text-white/90 text-sm">{category.description}</p>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-2xl font-black text-slate-900">{category.productCount.toLocaleString()}</span>
+                        <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">Products</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">Explore Category</span>
+                        <ArrowRight className="text-emerald-500 group-hover:translate-x-1 transition-transform duration-300" size={20} />
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        </div>
+      </div>
+
       {/* CTA Section */}
-      <AnimatedSection variants={fadeInUp} className="bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 py-10">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl md:text-3xl font-black text-white mb-3">
-            Can't Find What You're Looking For?
+      <AnimatedSection variants={fadeInUp} className="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900 py-16 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-cyan-500/10"></div>
+        
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <div className="inline-flex items-center gap-2 bg-emerald-500/20 backdrop-blur-sm border border-emerald-400/30 rounded-full px-4 py-1.5 mb-6">
+            <Zap className="w-4 h-4 text-emerald-400" />
+            <span className="text-emerald-400 font-bold text-xs">GET STARTED TODAY</span>
+          </div>
+          
+          <h2 className="text-3xl md:text-4xl font-black text-white mb-4 leading-tight">
+            Can't Find What You're <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Looking For?</span>
           </h2>
-          <p className="text-sm text-white/90 mb-6 max-w-2xl mx-auto">
-            Contact our team and we'll help you find the perfect products from our global supplier network
+          <p className="text-lg text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+            Our expert team is ready to help you source products from our global network of 500+ verified suppliers. 
+            Whether you need custom categories or specific product requirements, we've got you covered.
           </p>
-          <div className="flex flex-wrap justify-center gap-3">
-            <Link
-              to="/contact"
-              className="bg-white text-emerald-600 px-5 py-2 rounded-lg font-bold text-sm hover:bg-slate-50 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 inline-flex items-center gap-2"
-            >
-              <Search size={16} />
-              Request Custom Category
-            </Link>
-            <Link
-              to="/products"
-              className="bg-white/10 backdrop-blur-md border-2 border-white text-white px-5 py-2 rounded-lg font-bold text-sm hover:bg-white/20 transition-all inline-flex items-center gap-2 transform hover:scale-105"
-            >
-              Browse All Products
-            </Link>
+          
+          <div className="flex flex-wrap justify-center gap-4 mb-8">
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link
+                to="/contact"
+                className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-8 py-4 rounded-xl font-bold text-base hover:from-emerald-600 hover:to-teal-600 transition-all shadow-2xl hover:shadow-emerald-500/50 inline-flex items-center gap-3 border-2 border-emerald-400/50"
+              >
+                <Search size={20} />
+                Request Custom Category
+                <ArrowRight size={20} />
+              </Link>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link
+                to="/products"
+                className="bg-white/10 backdrop-blur-md border-2 border-white/30 text-white px-8 py-4 rounded-xl font-bold text-base hover:bg-white/20 transition-all inline-flex items-center gap-3"
+              >
+                Browse All Products
+                <Package size={20} />
+              </Link>
+            </motion.div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+              <div className="text-3xl font-black text-white mb-2">24/7</div>
+              <div className="text-sm font-semibold text-slate-300">Customer Support</div>
+            </div>
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+              <div className="text-3xl font-black text-white mb-2">100%</div>
+              <div className="text-sm font-semibold text-slate-300">Quality Guarantee</div>
+            </div>
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+              <div className="text-3xl font-black text-white mb-2">Fast</div>
+              <div className="text-sm font-semibold text-slate-300">Global Shipping</div>
+            </div>
           </div>
         </div>
       </AnimatedSection>

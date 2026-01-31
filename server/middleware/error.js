@@ -11,8 +11,13 @@ const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
 
-  // Log to console for dev
-  console.log(err);
+  // Log to console for dev with more details
+  console.error('\n❌ ===== ERROR OCCURRED =====');
+  console.error('Path:', req.path);
+  console.error('Method:', req.method);
+  console.error('Error:', err.message);
+  console.error('Stack:', err.stack);
+  console.error('===========================\n');
 
   // Mongoose bad ObjectId
   if (err.name === 'CastError') {
@@ -44,11 +49,14 @@ const errorHandler = (err, req, res, next) => {
     error = new ErrorResponse(message, 401);
   }
 
-  res.status(error.statusCode || 500).json({
-    success: false,
-    message: error.message || 'Server Error',
-    stack: process.env.NODE_ENV === 'production' ? null : err.stack
-  });
+  // Ensure response is sent even if headers already sent
+  if (!res.headersSent) {
+    res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || 'Server Error',
+      stack: process.env.NODE_ENV === 'production' ? null : err.stack
+    });
+  }
 };
 
 module.exports = { ErrorResponse, errorHandler };

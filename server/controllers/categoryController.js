@@ -125,3 +125,60 @@ exports.getCategoryStats = asyncHandler(async (req, res, next) => {
     data: stats
   });
 });
+
+// @desc    Toggle category active status
+// @route   PATCH /api/categories/:id/toggle-active
+// @access  Private/Admin
+exports.toggleCategoryActive = asyncHandler(async (req, res, next) => {
+  const category = await Category.findById(req.params.id);
+
+  if (!category) {
+    return next(new ErrorResponse(`Category not found with id of ${req.params.id}`, 404));
+  }
+
+  category.isActive = !category.isActive;
+  await category.save();
+
+  res.status(200).json({
+    success: true,
+    message: `Category ${category.isActive ? 'activated' : 'deactivated'} successfully`,
+    data: category
+  });
+});
+
+// @desc    Get all categories with pagination (Admin)
+// @route   GET /api/admin/categories/all
+// @access  Private/Admin
+exports.getAllCategoriesAdmin = asyncHandler(async (req, res, next) => {
+  const { search, isActive, page = 1, limit = 20 } = req.query;
+  
+  const filters = {};
+  if (search) {
+    filters.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } }
+    ];
+  }
+  if (isActive !== undefined && isActive !== '') {
+    filters.isActive = isActive === 'true';
+  }
+
+  const skip = (page - 1) * limit;
+
+  const [categories, total] = await Promise.all([
+    Category.find(filters)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit)),
+    Category.countDocuments(filters)
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: categories,
+    count: categories.length,
+    total,
+    page: parseInt(page),
+    pages: Math.ceil(total / limit)
+  });
+});

@@ -9,7 +9,8 @@ const {
   getProductsBySupplier,
   getFeaturedProducts,
   toggleFeatured,
-  updateStock
+  updateStock,
+  updateProductSummary
 } = require('../controllers/productController');
 const { protect, authorize, optionalAuth } = require('../middleware/auth');
 const { validate, createProductValidation, validateId } = require('../middleware/validation');
@@ -37,5 +38,6 @@ router
 // Admin only routes
 router.put('/:id/toggle-featured', protect, authorize('admin'), validateId, validate, toggleFeatured);
 router.put('/:id/stock', protect, authorize('supplier', 'admin'), validateId, validate, updateStock);
+router.put('/:id/summary', protect, authorize('admin'), validateId, validate, updateProductSummary);
 
 module.exports = router;

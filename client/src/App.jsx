@@ -3,12 +3,14 @@ import { Toaster } from 'react-hot-toast';
 import Layout from './components/layout/Layout';
 import DashboardLayout from './components/dashboard/DashboardLayout';
 import AdminDashboardLayout from './components/dashboard/AdminDashboardLayout';
+import SupplierDashboardLayout from './components/dashboard/SupplierDashboardLayout';
 import SplashScreen from './components/SplashScreen';
 import ScrollToTop from './components/ScrollToTop';
 import SessionTimeout from './components/SessionTimeout';
 import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/home/HomePage';
 import ProductsPage from './pages/products/ProductsPage';
+import ProductDetail from './pages/products/ProductDetail';
 import CategoriesPage from './pages/categories/CategoriesPage';
 import AboutPage from './pages/about/AboutPage';
 import ServicesPage from './pages/services/ServicesPage';
@@ -29,6 +31,22 @@ import DashboardFavorites from './components/dashboard/DashboardFavorites';
 import DashboardProfile from './components/dashboard/DashboardProfile';
 import DashboardSettings from './components/dashboard/DashboardSettings';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminSuppliers from './pages/admin/AdminSuppliers';
+import AdminProducts from './pages/admin/AdminProducts';
+import AdminProductForm from './pages/admin/AdminProductForm';
+import AdminOrders from './pages/admin/AdminOrders';
+import AdminShipments from './pages/admin/AdminShipments';
+import AdminPayments from './pages/admin/AdminPayments';
+import AdminQuotes from './pages/admin/AdminQuotes';
+import AdminContacts from './pages/admin/AdminContacts';
+import AdminReports from './pages/admin/AdminReports';
+import AdminSettings from './pages/admin/AdminSettings';
+import AdminCategories from './pages/admin/AdminCategories';
+import AdminBrands from './pages/admin/AdminBrands';
+import SupplierDashboard from './pages/supplier/SupplierDashboard';
+import SupplierProducts from './pages/supplier/SupplierProducts';
+import SupplierProductForm from './pages/supplier/SupplierProductForm';
 
 function App() {
   return (
@@ -99,6 +117,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="products" element={<ProductsPage />} />
+          <Route path="products/:id" element={<ProductDetail />} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="services" element={<ServicesPage />} />
@@ -140,7 +159,33 @@ function App() {
           </ProtectedRoute>
         }>
           <Route index element={<AdminDashboard />} />
-          {/* Add more admin routes as needed */}
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="suppliers" element={<AdminSuppliers />} />
+          <Route path="products" element={<AdminProducts />} />
+          <Route path="products/create" element={<AdminProductForm />} />
+          <Route path="products/edit/:id" element={<AdminProductForm />} />
+          <Route path="categories" element={<AdminCategories />} />
+          <Route path="brands" element={<AdminBrands />} />
+          <Route path="orders" element={<AdminOrders />} />
+          <Route path="shipments" element={<AdminShipments />} />
+          <Route path="payments" element={<AdminPayments />} />
+          <Route path="quotes" element={<AdminQuotes />} />
+          <Route path="contacts" element={<AdminContacts />} />
+          <Route path="reports" element={<AdminReports />} />
+          <Route path="settings" element={<AdminSettings />} />
+        </Route>
+
+        {/* Supplier Dashboard routes */}
+        <Route path="/supplier" element={
+          <ProtectedRoute>
+            <SupplierDashboardLayout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<SupplierDashboard />} />
+          <Route path="dashboard" element={<SupplierDashboard />} />
+          <Route path="products" element={<SupplierProducts />} />
+          <Route path="products/create" element={<SupplierProductForm />} />
         </Route>
       </Routes>
     </>

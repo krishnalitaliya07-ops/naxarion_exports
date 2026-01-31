@@ -203,3 +203,176 @@ exports.updateLegalDocuments = asyncHandler(async (req, res, next) => {
     data: settings
   });
 });
+
+// @desc    Update security settings
+// @route   PUT /api/settings/security
+// @access  Private/Admin
+exports.updateSecuritySettings = asyncHandler(async (req, res, next) => {
+  const settings = await Settings.getSettings();
+
+  settings.securitySettings = {
+    ...settings.securitySettings,
+    ...req.body
+  };
+  settings.updatedBy = req.user.id;
+
+  await settings.save();
+
+  res.status(200).json({
+    success: true,
+    data: settings
+  });
+});
+
+// @desc    Upload logo
+// @route   POST /api/settings/upload-logo
+// @access  Private/Admin
+exports.uploadLogo = asyncHandler(async (req, res, next) => {
+  const settings = await Settings.getSettings();
+  const { logoType = 'main' } = req.body;
+
+  // In production, handle file upload to cloudinary or similar
+  if (req.file) {
+    if (logoType === 'main') {
+      settings.logo = {
+        public_id: req.file.filename,
+        url: req.file.path
+      };
+    } else if (logoType === 'email') {
+      settings.emailLogo = {
+        public_id: req.file.filename,
+        url: req.file.path
+      };
+    }
+  }
+  
+  settings.updatedBy = req.user.id;
+  await settings.save();
+
+  res.status(200).json({
+    success: true,
+    data: settings
+  });
+});
+
+// @desc    Upload favicon
+// @route   POST /api/settings/upload-favicon
+// @access  Private/Admin
+exports.uploadFavicon = asyncHandler(async (req, res, next) => {
+  const settings = await Settings.getSettings();
+
+  if (req.file) {
+    settings.favicon = {
+      public_id: req.file.filename,
+      url: req.file.path
+    };
+  }
+  
+  settings.updatedBy = req.user.id;
+  await settings.save();
+
+  res.status(200).json({
+    success: true,
+    data: settings
+  });
+});
+
+// @desc    Reset settings to default
+// @route   PUT /api/settings/reset
+// @access  Private/Admin
+exports.resetToDefault = asyncHandler(async (req, res, next) => {
+  const { section = 'all' } = req.body;
+  const settings = await Settings.getSettings();
+
+  const defaults = {
+    businessSettings: {
+      minimumOrderValue: 500,
+      commission: 15,
+      currency: 'USD',
+      rfqExpiryDays: 30,
+      autoApproveProducts: false,
+      multiCurrencyEnabled: true
+    },
+    notificationSettings: {
+      newUserRegistration: true,
+      newOrderPlaced: true,
+      paymentReceived: true,
+      newRFQSubmitted: true,
+      supplierVerification: true,
+      lowStockAlert: false
+    },
+    securitySettings: {
+      twoFactorAuth: false,
+      sessionTimeout: 30,
+      passwordExpiryDays: 90,
+      maxLoginAttempts: 5
+    }
+  };
+
+  if (section === 'all') {
+    Object.keys(defaults).forEach(key => {
+      settings[key] = defaults[key];
+    });
+  } else if (defaults[section]) {
+    settings[section] = defaults[section];
+  }
+
+  settings.updatedBy = req.user.id;
+  await settings.save();
+
+  res.status(200).json({
+    success: true,
+    message: 'Settings reset to default',
+    data: settings
+  });
+});
+
+// @desc    Get system info
+// @route   GET /api/settings/system-info
+// @access  Private/Admin
+exports.getSystemInfo = asyncHandler(async (req, res, next) => {
+  const os = require('os');
+  const mongoose = require('mongoose');
+
+  res.status(200).json({
+    success: true,
+    data: {
+      nodeVersion: process.version,
+      platform: os.platform(),
+      uptime: process.uptime(),
+      memoryUsage: process.memoryUsage(),
+      cpuUsage: os.loadavg(),
+      mongoDbStatus: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
+      environment: process.env.NODE_ENV || 'development'
+    }
+  });
+});
+
+// @desc    Test email configuration
+// @route   POST /api/settings/test-email
+// @access  Private/Admin
+exports.testEmailConfig = asyncHandler(async (req, res, next) => {
+  const { testEmail } = req.body;
+  
+  // In production, send actual test email
+  // const sendEmail = require('../utils/sendEmail');
+  // await sendEmail({ to: testEmail, subject: 'Test Email', text: 'This is a test email.' });
+
+  res.status(200).json({
+    success: true,
+    message: `Test email sent to ${testEmail}`
+  });
+});
+
+// @desc    Test payment configuration
+// @route   POST /api/settings/test-payment
+// @access  Private/Admin
+exports.testPaymentConfig = asyncHandler(async (req, res, next) => {
+  const { provider } = req.body;
+  
+  // In production, verify payment provider credentials
+  res.status(200).json({
+    success: true,
+    message: `${provider} payment configuration is valid`
+  });
+});

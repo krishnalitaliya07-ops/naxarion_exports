@@ -75,7 +75,7 @@ const Header = () => {
     { name: 'About', path: '/about' },
     { name: 'Services', path: '/services' },
     { name: 'Contact', path: '/contact' },
-  ];
+  ];  
 
   return (
     <>
@@ -93,7 +93,6 @@ const Header = () => {
               <p className="text-[10px] text-emerald-400 font-semibold">Global Exports</p>
             </div>
           </Link>
-
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-7">
             {navLinks.map((link) => (
@@ -150,7 +149,7 @@ const Header = () => {
                     {/* Menu Items */}
                     <div className="p-1.5">
                       <Link
-                        to="/dashboard"
+                        to={user?.role === 'admin' ? '/admin/dashboard' : '/dashboard'}
                         onClick={() => {
                           setShowProfileDropdown(false);
                           setIsRotating(false);
@@ -221,7 +220,7 @@ const Header = () => {
               {isAuthenticated ? (
                 <>
                   <Link
-                    to="/dashboard"
+                    to={user?.role === 'admin' ? '/admin/dashboard' : '/dashboard'}
                     onClick={() => setMobileMenuOpen(false)}
                     className="text-center px-6 py-2.5 bg-white/10 border-2 border-white/40 text-white rounded-xl font-bold"
                   >

@@ -5,13 +5,15 @@ const {
   createPayment,
   updatePaymentStatus,
   processRefund,
+  processPayout,
   getMyPayments,
-  getPaymentStats
+  getPaymentStats,
+  getCommissionBreakdown,
+  getPaymentMethodsDistribution,
+  exportPaymentsReport
 } = require('../controllers/paymentController');
 const { protect, authorize } = require('../middleware/auth');
 const { validate, validateId } = require('../middleware/validation');
-const { advancedFilter, sorting, paginate } = require('../middleware/pagination');
-const Payment = require('../models/Payment');
 
 const router = express.Router();
 
@@ -21,12 +23,15 @@ router.use(protect);
 router.get('/my/payments', getMyPayments);
 router.post('/', createPayment);
 
-// Admin routes
+// Admin routes - specific routes before parameterized routes
 router.get('/stats', authorize('admin'), getPaymentStats);
+router.get('/commission-breakdown', authorize('admin'), getCommissionBreakdown);
+router.get('/methods-distribution', authorize('admin'), getPaymentMethodsDistribution);
+router.get('/export', authorize('admin'), exportPaymentsReport);
 
 router
   .route('/')
-  .get(advancedFilter, sorting, paginate(Payment), getPayments);
+  .get(getPayments);
 
 router
   .route('/:id')
@@ -34,5 +39,6 @@ router
 
 router.put('/:id/status', authorize('admin'), validateId, validate, updatePaymentStatus);
 router.put('/:id/refund', authorize('admin'), validateId, validate, processRefund);
+router.post('/:id/payout', authorize('admin'), validateId, validate, processPayout);
 
 module.exports = router;

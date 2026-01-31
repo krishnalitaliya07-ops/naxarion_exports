@@ -16,6 +16,10 @@ const productSchema = new mongoose.Schema({
     type: String,
     maxlength: [500, 'Short description cannot exceed 500 characters']
   },
+  summary: {
+    type: String,
+    maxlength: [3000, 'Summary cannot exceed 3000 characters']
+  },
   sku: {
     type: String,
     unique: true,
@@ -34,7 +38,12 @@ const productSchema = new mongoose.Schema({
   supplier: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Supplier',
-    required: true
+    required: false  // Made optional - admin products don't need supplier
+  },
+  brand: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Brand',
+    required: false
   },
   price: {
     min: {
